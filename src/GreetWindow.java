@@ -10,12 +10,11 @@ import javax.swing.*;
  
 public class GreetWindow extends JFrame 
 {
- 
+  
    JPanel panel = new JPanel();
    JTextField login;
    JPasswordField password;
    JRadioButton worker;
-   boolean isWorker;
    Connection conn;
    Statement stmt;
 	
@@ -39,7 +38,6 @@ public class GreetWindow extends JFrame
 			stmt = conn.createStatement();
 		  } catch (SQLException e1) 
 		  {
-			// TODO Auto-generated catch block
 			  System.out.println("Nie poszlo dobrze z baza w GreetWindow");
 			e1.printStackTrace();
 		  }
@@ -112,8 +110,7 @@ public class GreetWindow extends JFrame
         public void actionPerformed(ActionEvent e)
         {
             String user = login.getText();
-            String pass = password.getText();
-            
+            String pass = password.getText();           
             
             if(  (login.getText().isEmpty() == true) ||   (password.getText().isEmpty() == true) )
     		{
@@ -122,11 +119,10 @@ public class GreetWindow extends JFrame
     		}
     		else
     		{
-//    			this.setVisible(false);
-    			//, zweryfikuj dane w bazie, sprawdz czy zaznaczone, zepracownik i czy to jest pracownik, przejdz do kolejnego panelu
+    			// zweryfikuj dane w bazie, sprawdz czy zaznaczone, zepracownik i czy to jest pracownik, przejdz do kolejnego panelu
     			if(worker.isSelected())
     			{
-    				isWorker = true;
+    				//SPRAWDZAM CZY W BAZIE JEST ZAREJESTROWANY TAKI  PRACOWNIK
     				int counter = 0;
     				ResultSet rs = null;
         			try 
@@ -150,18 +146,17 @@ public class GreetWindow extends JFrame
         			}
         			else
         			{
-        				//przeczodzisz do kolejnego panelu
+        				//OTWIERAM PANEL PRACOWNIKA
         				WorkerPanel W = new WorkerPanel();
-//	            		W.setVisible(true);
-        			}
-        				
-    			}
-                	
+        				dispose();
+        			}        				
+    			}                	
                 else
                 {
-                	isWorker = false;
+                	//SPRAWDZAM CZY W BAZIE JEST ZAREJESTROWANY TAKI KLIENT
                 	int counter = 0;
                 	ResultSet rs = null;
+                	ResultSet rsIndeks = null;
         			try 
         			{
         				rs = stmt.executeQuery("SELECT * from klienci where login like '" + user + "' and haslo like '" + pass + "';");
@@ -181,23 +176,40 @@ public class GreetWindow extends JFrame
         			}
         			else
         			{
-        				//przeczodzisz do kolejnego panelu
-        				setVisible(false);//NO WIEM, ZE NIE ZBYT OSZCZEDNE PAMIECIOWO, ALE TO TYLKO JEDEN RAZ SIE TAK UKRYWA, WIEC NIE JEST GROZNE
-        				ClientPanel C = new ClientPanel();
-//        				C.setVisible(true);
-        				System.out.println("Otwieram panel klienta z poziomu greetWindow");
+        				int indeks = -1;
+        				try 
+        				{
+							rsIndeks = stmt.executeQuery("SELECT indeks from klienci where login like '" + user + "' and haslo like '" + pass + "';");
+						} catch (SQLException e1) 
+        				{
+							e1.printStackTrace();
+						}
+        				dispose();
+        				
+    					try 
+    					{
+							while(rsIndeks.next())
+							{
+								indeks = rsIndeks.getInt(1);
+							}
+						} catch (SQLException e1) 
+    					{
+							e1.printStackTrace();
+						}
+        				
+        				//OTWIERAM PANEL KLIENTA
+        				ClientPanel C = new ClientPanel(indeks);
+        				dispose();
         			}
         				
                 }
-                	
-                System.out.println(isWorker);
     		}  
         }
        
     }
  
-    public static void main(String[] args) {
- 
+    public static void main(String[] args) 
+    { 
        EventQueue.invokeLater(new Runnable() 
        {
          public void run() 

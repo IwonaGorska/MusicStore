@@ -1,6 +1,9 @@
  import java.awt.*;
 import java.awt.event.*;
+import java.sql.ResultSet;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -10,10 +13,12 @@ import javax.swing.JTextField;
 
 public class ClientPanel 
 {
+	int indeks;
 	
-	public ClientPanel() 
+	public ClientPanel(int id) 
 	   {
 	        initComponents();
+	        indeks = id;
 	   }
 	
 	public void initComponents()
@@ -21,58 +26,45 @@ public class ClientPanel
 		  Frame frame= new Frame("Ekran g³ówny");
 		  Panel pa = new Panel();
 		  Button cp1 = new Button("Moje faktury");
-//		  cp1.addActionListener(new ActionListener()
-//          {
-//          	@Override
-//          	public void actionPerformed(ActionEvent e) 
-//          	{
-//		  					
-//          				otworz okno do tylko przegladania faktur zaslaniajace to obecne okno
-//          	}
-//          	});
+		  cp1.addActionListener(new ActionListener()
+          {
+          	@Override
+          	public void actionPerformed(ActionEvent e) 
+          	{		  					
+          		Invoices I = new Invoices(indeks);
+          		System.out.println("Invoices jest otwierane");
+          	}
+          	});
 		  Button cp2 = new Button("Mój koszyk");
-//		  cp2.addActionListener(new ActionListener()
-//        {
-//        	@Override
-//        	public void actionPerformed(ActionEvent e) 
-//        	{
-//        		otworz okno do przegladania i usuwania zawartosci koszyka zaslaniajace to obecne okno	
-//        	}
-//        	});
+		  cp2.addActionListener(new ActionListener()
+        {
+        	@Override
+        	public void actionPerformed(ActionEvent e) 
+        	{
+        		MyCart MC = new MyCart(indeks);
+				MC.setVisible(true);
+        	}
+        	});
 		  Button cp3 = new Button("Moje konto");
-//		  cp3.addActionListener(new ActionListener()
-//        {
-//        	@Override
-//        	public void actionPerformed(ActionEvent e) 
-//        	{
-//        		otworz okno do przegladania i edycji danych wlasnych zaslaniajace to obecne okno	
-//        	}
-//        	});
-		  Button cp4 = new Button("Szukaj produktu");
-		  
-//		  cp4.addActionListener(new ActionListener()
-//        {
-//        	@Override
-//        	public void actionPerformed(ActionEvent e) 
-//        	{
-//        		
-//		  		dodaj szukajke w tym komponencie od razu i przycisk do obejrzenia wszystkich produktow zaslaniajace to obecne okno
-//        	}
-//        	});
+		  cp3.addActionListener(new ActionListener()
+        {
+        	@Override
+        	public void actionPerformed(ActionEvent e) 
+        	{
+				MyAccount MA = new MyAccount(indeks);
+				MA.setVisible(true);	
+        	}
+        	});
+
 		  frame.add(pa);
 		  pa.setLayout(new BorderLayout());
 		  pa.add(cp1, BorderLayout.NORTH);
 		  pa.add(cp2, BorderLayout.EAST);
 		  pa.add(cp3, BorderLayout.WEST);
-//		  pa.add(cp4, BorderLayout.CENTER);
 		  
-		  Box box = Box.createHorizontalBox();
+		  Box box = Box.createVerticalBox();
 		  buildRow(box);
-//		  box.add(cp4);
-////		  box.add(Box.createVerticalStrut(6));
-//		  box.add(cp3);
 		  pa.add(box, BorderLayout.CENTER);
-	        
 		 
 		  frame.setSize(550,350);
 		  frame.setVisible(true);
@@ -89,28 +81,54 @@ public class ClientPanel
 	
 	private void buildRow(JComponent panel) 
     {
-        
-        panel.add(Box.createHorizontalStrut(30));//pozioma rozpórka - szerokoœæ wiersza jakby
+        panel.add(Box.createVerticalStrut(70));
 
         JLabel search = new JLabel("Szukaj produktu:"); 
-        search.setEnabled(false);
         panel.add(search);
         
+        panel.add(Box.createVerticalStrut(20));
+        
         JTextField text = new JTextField();
-        Dimension size = new Dimension(40, 23);
-        text.setPreferredSize(size);
+        text.setToolTipText("Wpisz szukan¹ frazê i wciœnij enter.");
         panel.add(text);
         
-        panel.add(Box.createVerticalStrut(6));
+        Action action = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+            	if(text.getText().isEmpty() == false)
+            	{
+            		//DOLOZ TUTAJ INJEKCJE ZAPYTAN, SUME CZY TAM COS, ZEBY SZUKALO FRAZY NIE TYLKO W TYTULE, ALE TEZ W ARTYSCIE CZY COS
+            		System.out.println("some action");
+            		String t = text.getText();
+            		t = t.toLowerCase();
+            		String sql;
+            		sql = "SELECT * from egzemplarze where indeks_plyty IN (select indeks from plyty where lower(tytul) like '%" + t + "%');";
+            		System.out.println(sql);
+            		Products P = new Products(sql, false, indeks);
+    				P.setVisible(true);
+            	}
+            }
+        };
+        text.addActionListener( action );
         
+        panel.add(Box.createVerticalStrut(20));
+
         JButton all = new JButton("Wszystkie produkty");
+		all.addActionListener(new ActionListener()
+		{
+	      	@Override
+	      	public void actionPerformed(ActionEvent e) 
+	      	{
+	      		String sql = "SELECT * from egzemplarze;";
+	      		Products P = new Products(sql, false, indeks);
+				P.setVisible(true);
+	      	}
+      	});
         panel.add(all);
         
-//        TextB =new JTextField();
-//        setPrefferedMaxAndMinSize(TextB, 40, 23);
-//        TextB.setEnabled(false);
-//        panel.add(TextB);
-        
+        panel.add(Box.createVerticalStrut(80));
      }
 
   public static void main(String[] args) 

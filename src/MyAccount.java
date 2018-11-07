@@ -9,24 +9,28 @@ import java.sql.Statement;
 
 import javax.swing.*;
  
-public class Registration extends JFrame 
+public class MyAccount extends JFrame 
 {
    JPanel panel = new JPanel();
+   JButton  saveButton;
+   JButton  editButton;
    JTextField login, name, surname, mail;
    JPasswordField password;
    JPasswordField passwordRepeat;
+   JLabel  passwordLabelRepeat;
    Connection conn;
    Statement stmt;
+   int indeks;
 	
-   public Registration() 
+   public MyAccount(int id) 
    {
-        setTitle("Registration");
+        setTitle("Moje konto");
         setSize(400,350);
         setResizable(false);
-        setLocationRelativeTo(null);
+        setLocation(500,150);
+        indeks = id;
         initComponents();
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocation(340,150);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);       
    }
  
     public void initComponents()
@@ -42,20 +46,44 @@ public class Registration extends JFrame
 			e1.printStackTrace();
 		  }
 		  
+		  String sql = "";
           JButton  closeButton = new JButton ("Zamknij");
+          saveButton = new JButton ("Zapisz");
+          saveButton.setVisible(false);
+          editButton = new JButton ("Edytuj");
           JLabel  loginLabel= new JLabel("Login: ");
           JLabel  passwordLabel = new JLabel("Has³o: ");
-          JLabel  passwordLabelRepeat = new JLabel("Powtórz has³o: ");
+          passwordLabelRepeat = new JLabel("Powtórz has³o: ");
+          passwordLabelRepeat.setVisible(false);
           JLabel  nameLabel= new JLabel("Imie: ");
           JLabel  surnameLabel = new JLabel("Nazwisko: ");
           JLabel  mailLabel = new JLabel("E-mail: ");
           login = new JTextField(6);
+          sql = "SELECT login from klienci where indeks = " +  Integer.toString(indeks) + ";";
+          System.out.println(sql);
+          login.setText(readFromDB(sql));
+          login.setEditable(false);
           password = new JPasswordField(6);
+          sql = "SELECT haslo from klienci where indeks = " +  Integer.toString(indeks) + ";";
+          password.setText(readFromDB(sql));
+          password.setEditable(false);
           name = new JTextField(6);
+          sql = "SELECT imie from klienci where indeks = " +  Integer.toString(indeks) + ";";
+          name.setText(readFromDB(sql));
+          name.setEditable(false);
           surname = new JTextField(6);
+          sql = "SELECT nazwisko from klienci where indeks = " +  Integer.toString(indeks) + ";";
+          surname.setText(readFromDB(sql));
+          surname.setEditable(false);
           mail = new JTextField(6);
+          sql = "SELECT email from klienci where indeks = " +  Integer.toString(indeks) + ";";
+          mail.setText(readFromDB(sql));
+          mail.setEditable(false);
           passwordRepeat = new JPasswordField(6);
+          passwordRepeat.setVisible(false);
           closeButton.setSize(90, 30);
+          saveButton.setSize(90, 30);
+          editButton.setSize(90, 30);
           login.setSize(100,30);
           password.setSize(100,30);
           name.setSize(100,30);
@@ -68,7 +96,9 @@ public class Registration extends JFrame
           nameLabel.setSize(100,30);
           surnameLabel.setSize(100,30);
           mailLabel.setSize(100,30);
-          closeButton.setLocation(getWidth()-190,getHeight()-90);
+          closeButton.setLocation(getWidth()-100,getHeight()-90);
+          saveButton.setLocation(getWidth()-220,getHeight()-90);
+          editButton.setLocation(getWidth()-340,getHeight()-90);
           loginLabel.setLocation(getWidth()-340,getHeight()-330);
           passwordLabel.setLocation(getWidth()-340,getHeight()-290);
           passwordLabelRepeat.setLocation(getWidth()-340,getHeight()-250);
@@ -83,6 +113,8 @@ public class Registration extends JFrame
           mail.setLocation(getWidth()-250,getHeight()-130);
           panel.setLayout(null);
           panel.add(closeButton);
+          panel.add(saveButton);
+          panel.add(editButton);
           panel.add(login);
           panel.add(password);
           panel.add(passwordRepeat);
@@ -96,6 +128,8 @@ public class Registration extends JFrame
           panel.add(surnameLabel);
           panel.add(mailLabel);
           closeButton.setToolTipText("Zamknij okno.");
+          saveButton.setToolTipText("Zapisz nowe dane.");
+          editButton.setToolTipText("Edytuj swoje dane.");
           login.setToolTipText("Podaj swój login.");
           password.setToolTipText("Podaj swoje has³o.");
           passwordRepeat.setToolTipText("Powtórz swoje has³o.");
@@ -104,28 +138,63 @@ public class Registration extends JFrame
           mail.setToolTipText("Podaj swój adres e-mail.");
           this.getContentPane().add(panel);
           closeButton.addActionListener(new ButtonClose());
-          JButton  registrationButton = new JButton ("Register");
-          registrationButton.setLocation(getWidth()-310,getHeight()-90);
-          registrationButton.setSize(90, 30);
-          registrationButton.addActionListener(new ButtonReg());
-
-          registrationButton.setToolTipText("Zarejestruj siê.");
-          panel.add(registrationButton);
+          saveButton.addActionListener(new ButtonSave());
+          editButton.addActionListener(new ButtonEdit());
+          saveButton.setForeground(new Color(9,210,19));
           closeButton.setForeground(new Color(253,4,21));
-          registrationButton.setForeground(new Color(248,103,6));
+    }
+   
+    private String readFromDB(String sql)
+    {
+    	String data = "";
+    	ResultSet rs = null;
+		try 
+		{
+			rs = stmt.executeQuery(sql);
+		} catch (SQLException e1) 
+		{
+			e1.printStackTrace();
+		}
+		
+		try 
+		{
+			while(rs.next())
+			{
+				data = rs.getString(1);
+			}
+		} catch (SQLException e1) 
+		{
+			e1.printStackTrace();
+		}
+        return data;
+    }
+    
+    private class ButtonEdit implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+        	saveButton.setVisible(true);
+        	editButton.setEnabled(false);
+        	passwordLabelRepeat.setVisible(true);
+        	passwordRepeat.setVisible(true);
+        	login.setEditable(true);
+        	password.setEditable(true);
+        	name.setEditable(true);
+        	surname.setEditable(true);
+        	mail.setEditable(true);
+        }
     }
  
     private class ButtonClose implements ActionListener
     {
         public void actionPerformed(ActionEvent e)
         {
-            System.exit(0);
+            dispose();
         }
     }
  
-    private class ButtonReg implements ActionListener
+    private class ButtonSave implements ActionListener
     {
-   
         public void actionPerformed(ActionEvent e)
         {
             String userString = login.getText();
@@ -143,79 +212,17 @@ public class Registration extends JFrame
             
     		else
     		{
-    			int counter = 0; //inicjalizacja dla picu zeby comilator dal spokoj	        	
+				String sqlUpdate = "UPDATE klienci SET login='" + userString + "', haslo='" + passString + "', imie='" + nameString + "', nazwisko='" + surnameString + "', email='" + mailString + "' WHERE indeks=" + Integer.toString(indeks) + ";";
 				try 
 				{
-					ResultSet rs1 = stmt.executeQuery("SELECT * from klienci where login like '" + userString + "' and haslo like '" + passString + "';");
-					while(rs1.next())
-	   			 	{
-	   			 		counter++;
-	   			 	}
-					
+					stmt.executeUpdate(sqlUpdate);
+					System.out.println(sqlUpdate);
 				} catch (SQLException e1) 
 				{
 					e1.printStackTrace();
 				}
-				if(counter != 0)
-				{
-					JOptionPane.showMessageDialog(panel, "Uzytkownik o podanym loginie i haœle juz istnieje!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
-					login.setText("");
-					password.setText("");
-					passwordRepeat.setText("");
-					name.setText("");
-					surname.setText("");
-					mail.setText("");
-				} else
-					try 
-					{
-						ResultSet nrRes = null;
-			    		int nr = -1;
-			    		try 
-						{
-			    			nrRes = stmt.executeQuery("select count(*) as counter from klienci;");
-					        while(nrRes.next())
-					        {
-					        	nr = nrRes.getInt("counter") + 1;       
-					        }
-						} catch (SQLException f) 
-						{
-							f.printStackTrace();
-						}
-						
-						
-						String sqlInsert = "INSERT into klienci (indeks, login, haslo, imie, nazwisko, email) values (" + Integer.toString(nr) + ", '" + userString + "', '" + passString + "', '" + nameString + "', '" + surnameString + "' , '" + mailString + "');";
-						int insertInt = stmt.executeUpdate(sqlInsert);
-						int indeks = -1;
-                		ResultSet rsIndeks = null;
-        				try 
-        				{
-							rsIndeks = stmt.executeQuery("SELECT indeks from klienci where login like '" + userString + "' and haslo like '" + passString + "';");
-						} catch (SQLException e1) 
-        				{
-							e1.printStackTrace();
-						}
-        				
-    					try 
-    					{
-							while(rsIndeks.next())
-							{
-								indeks = rsIndeks.getInt(1);
-							}
-						} catch (SQLException e1) 
-    					{
-							e1.printStackTrace();
-						}
-        				
-        				ClientPanel C = new ClientPanel(indeks);
-        				
-        				dispose();
-					} catch (SQLException e1) 
-					{
-						e1.printStackTrace();
-					}
     		}  
         }
-       
     }
  
     public static void main(String[] args) 
