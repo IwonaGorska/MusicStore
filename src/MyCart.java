@@ -376,7 +376,7 @@ public class MyCart extends JFrame
     		try 
 			{
     			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) "
-    					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 1, 1);");
+    					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 0, 1);");
 			} catch (SQLException f) 
 			{
 				f.printStackTrace();
@@ -488,7 +488,7 @@ public class MyCart extends JFrame
 					e1.printStackTrace();
 				}
     		}
-        	
+        	dispose();
         }
     }
     

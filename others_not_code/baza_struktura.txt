@@ -1,0 +1,165 @@
+ Tabela "public.dostawcy"
+   Kolumna   |          Typ          |                        Modyfikatory
+-------------+-----------------------+-------------------------------------------------------------
+ indeks      | integer               | niepusty domyùlnie nextval('dostawcy_indeks_seq'::regclass)
+ nazwa       | character varying(30) | niepusty
+ nip         | character varying(10) | niepusty
+ nr_telefonu | character varying(9)  | niepusty
+
+Indeksy:
+    "dostawcy_pkey" PRIMARY KEY, btree (indeks)
+
+
+
+
+
+Tabela "public.egzemplarze"
+    Kolumna    |   Typ    |                          Modyfikatory
+---------------+----------+----------------------------------------------------------------
+ indeks        | integer  | niepusty domyùlnie nextval('egzemplarze_indeks_seq'::regclass)
+ indeks_plyty  | integer  |
+ nosnik        | smallint | niepusty domyùlnie 1
+ cena          | numeric  | niepusty
+ koszt_dostawy | numeric  | niepusty
+ rodzaj        | smallint | niepusty domyùlnie 1
+ stan          | integer  | niepusty
+Indeksy:
+    "egzemplarze_pkey" PRIMARY KEY, btree (indeks)
+Ograniczenia kluczy obcych:
+    "egzemplarze_indeks_plyty_fkey" FOREIGN KEY (indeks_plyty) REFERENCES plyty(indeks)
+Wskazywany przez:
+    TABLE "produkty_faktur" CONSTRAINT "produkty_faktur_indeks_egzemplarza_fkey" FOREIGN KEY (indeks_egzemplarza) REFERENCES egzemplarze(indeks)
+    TABLE "zamowienia" CONSTRAINT "zamowienia_indeks_egzemplarza_fkey" FOREIGN KEY (indeks_egzemplarza) REFERENCES egzemplarze(indeks)
+
+
+
+
+
+ Tabela "public.faktury"
+       Kolumna       |   Typ    |                        Modyfikatory
+---------------------+----------+------------------------------------------------------------
+ indeks              | integer  | niepusty domyùlnie nextval('faktury_indeks_seq'::regclass)
+ data_sprzedazy      | date     |
+ wartosc_netto       | numeric  |
+ wartosc_brutto      | numeric  |
+ wartosc_vat         | numeric  |
+ rodz_dok            | smallint |
+ id_klienta_dostawcy | integer  | niepusty
+Indeksy:
+    "faktury_pkey" PRIMARY KEY, btree (indeks)
+Ograniczenia kluczy obcych:
+    "faktury_id_klienta_fkey" FOREIGN KEY (id_klienta_dostawcy) REFERENCES klienci(indeks)
+Wskazywany przez:
+    TABLE "produkty_faktur" CONSTRAINT "produkty_faktur_indeks_faktury_fkey" FOREIGN KEY (indeks_faktury) REFERENCES faktury(indeks)
+
+
+
+
+
+
+
+ Tabela "public.klienci"
+ Kolumna  |          Typ          |                        Modyfikatory
+----------+-----------------------+------------------------------------------------------------
+ indeks   | integer               | niepusty domyùlnie nextval('klienci_indeks_seq'::regclass)
+ login    | character varying(15) | niepusty
+ haslo    | character varying(9)  | niepusty
+ imie     | character varying(20) | niepusty
+ nazwisko | character varying(30) | niepusty
+ email    | character varying(30) |
+Indeksy:
+    "klienci_pkey" PRIMARY KEY, btree (indeks)
+Wskazywany przez:
+    TABLE "faktury" CONSTRAINT "faktury_id_klienta_fkey" FOREIGN KEY (id_klienta_dostawcy) REFERENCES klienci(indeks)
+    TABLE "koszyk" CONSTRAINT "koszyk_indeks_klienta_fkey" FOREIGN KEY (indeks_klienta) REFERENCES klienci(indeks)
+
+
+
+
+
+
+                                  Tabela "public.koszyk"
+      Kolumna       |   Typ   |                       Modyfikatory
+--------------------+---------+-----------------------------------------------------------
+ indeks             | integer | niepusty domyùlnie nextval('koszyk_indeks_seq'::regclass)
+ indeks_egzemplarza | integer |
+ indeks_klienta     | integer |
+ sztuki             | integer |
+Indeksy:
+    "koszyk_pkey" PRIMARY KEY, btree (indeks)
+Ograniczenia kluczy obcych:
+    "koszyk_indeks_klienta_fkey" FOREIGN KEY (indeks_klienta) REFERENCES klienci(indeks)
+    "koszyk_indeks_plyty_fkey" FOREIGN KEY (indeks_egzemplarza) REFERENCES plyty(indeks)
+
+
+
+
+
+
+
+ Tabela "public.plyty"
+      Kolumna       |          Typ          |                       Modyfikatory
+--------------------+-----------------------+----------------------------------------------------------
+ indeks             | integer               | niepusty domyùlnie nextval('plyty_indeks_seq'::regclass)
+ tytul              | character varying(20) | niepusty
+ wykonawca          | character varying(30) | niepusty
+ gatunek            | character varying(30) |
+ data_premiery      | date                  |
+ wydawnictwo        | character varying(30) |
+ dlugosc_w_minutach | integer               |
+Indeksy:
+    "plyty_pkey" PRIMARY KEY, btree (indeks)
+Wskazywany przez:
+    TABLE "egzemplarze" CONSTRAINT "egzemplarze_indeks_plyty_fkey" FOREIGN KEY (indeks_plyty) REFERENCES plyty(indeks)
+    TABLE "koszyk" CONSTRAINT "koszyk_indeks_plyty_fkey" FOREIGN KEY (indeks_egzemplarza) REFERENCES plyty(indeks)
+
+
+
+
+
+
+ Tabela "public.pracownicy"
+ Kolumna |          Typ          |                         Modyfikatory
+---------+-----------------------+---------------------------------------------------------------
+ indeks  | integer               | niepusty domyùlnie nextval('pracownicy_indeks_seq'::regclass)
+ login   | character varying(15) | niepusty
+ haslo   | character varying(9)  | niepusty
+Indeksy:
+    "pracownicy_pkey" PRIMARY KEY, btree (indeks)
+
+
+
+
+
+
+ Tabela "public.produkty_faktur"
+      Kolumna       |   Typ   |                            Modyfikatory
+--------------------+---------+--------------------------------------------------------------------
+ indeks             | integer | niepusty domyùlnie nextval('produkty_faktur_indeks_seq'::regclass)
+ indeks_faktury     | integer |
+ indeks_egzemplarza | integer |
+ sztuki             | integer | niepusty
+Indeksy:
+    "produkty_faktur_pkey" PRIMARY KEY, btree (indeks)
+Ograniczenia kluczy obcych:
+    "produkty_faktur_indeks_egzemplarza_fkey" FOREIGN KEY (indeks_egzemplarza) REFERENCES egzemplarze(indeks)
+    "produkty_faktur_indeks_faktury_fkey" FOREIGN KEY (indeks_faktury) REFERENCES faktury(indeks)
+
+
+
+
+
+ Tabela "public.zamowienia"
+      Kolumna       |   Typ   |                         Modyfikatory
+--------------------+---------+---------------------------------------------------------------
+ indeks             | integer | niepusty domyùlnie nextval('zamowienia_indeks_seq'::regclass)
+ indeks_egzemplarza | integer |
+ data_zlozenia      | date    |
+ sztuki             | integer |
+Indeksy:
+    "zamowienia_pkey" PRIMARY KEY, btree (indeks)
+Ograniczenia kluczy obcych:
+    "zamowienia_indeks_egzemplarza_fkey" FOREIGN KEY (indeks_egzemplarza) REFERENCES egzemplarze(indeks)
+
+
+

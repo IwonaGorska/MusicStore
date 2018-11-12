@@ -409,7 +409,7 @@ public class Products extends JFrame
         		valueObject6 = table.getValueAt(i, 6);
         		valueString6 = (String)valueObject6;
         		
-        		if(!valueString2.equals("") && (!(valueString6.equals("0"))) )
+        		if(!valueString2.equals("") )
         		{
 	        		ResultSet nrRes = null;
 		    		int nr = -1;
@@ -450,6 +450,7 @@ public class Products extends JFrame
 					}
 	        		
 	        		amount = amount + valueInt3*mnoznikCen + valueInt4*mnoznikCen; 
+	        		System.out.println("amount->" + amount);
         		}
         	}
     		NewInvoice.saveButton.setVisible(true);
@@ -494,7 +495,7 @@ public class Products extends JFrame
     		try 
 			{
     			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) "
-    					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 1, 1);");
+    					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 0, 1);");
 			} catch (SQLException f) 
 			{
 				f.printStackTrace();

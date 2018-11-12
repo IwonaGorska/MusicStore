@@ -1,0 +1,14 @@
+create or replace function stanMinus() returns trigger as $stanMinus$ begin if new.stan<0 then  new.stan=0; end if; end; $stanMinus$ language plpgsql;
+
+create trigger stanMinus before update on egzemplarze for each row execute procedure stanMinus();
+
+ZLE
+create or replace function premierDate() returns trigger as $premierDate$ begin if new.data_premiery>current_date set new.data_premiery=current_date; end if; return new; end; $premierDate$ language plpgsql;
+ZLE
+create trigger premierDate on plyty for each row execute procedure premierDate();
+
+
+
+ create or replace function premierDate() returns trigger as $premierDate$ begin if new.data_premiery>current_date then raise exception '% Data z przyszlosci', new.indeks; end if; return new; end; $premierDate$ language plpgsql;
+
+ create trigger premierDate before insert on plyty for each row execute procedure premierDate();

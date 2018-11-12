@@ -287,15 +287,15 @@ public class NewInvoice extends JFrame
 					f.printStackTrace();
 				}
             
-	    		if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))
+	    		if(((String)type.getSelectedItem()).equals("Faktura przychodz¹ca (1)"))
 	            {
-	            	typeShort = 0;
+	            	typeShort = 1;
 	            	if(!((String)ID_dostawcy.getSelectedItem()).equals("Brak dostawców w bazie"))
 	            		IDint = Integer.parseInt((String)ID_dostawcy.getSelectedItem());
 	            }	
 	            else
 	            {
-	            	typeShort = 1;
+	            	typeShort = 0;
 	            	if(!((String)ID_klienta.getSelectedItem()).equals("Brak klientów w bazie"))
 	            		IDint = Integer.parseInt((String)ID_klienta.getSelectedItem());
 	            }
@@ -303,14 +303,14 @@ public class NewInvoice extends JFrame
     			double vatD = 0.23 * amount;	
                 double nettoD = amount - vatD;
     			
-    			if(((String)ID_klienta.getSelectedItem()).equals("Brak klientów w bazie") && typeShort == 1 )
+    			if(((String)ID_klienta.getSelectedItem()).equals("Brak klientów w bazie") && typeShort == 0 )
     			{
     				JOptionPane.showMessageDialog(panel, "Brak klientów w bazie!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
     			}
 	
     			else
     			{
-    				if(((String)ID_dostawcy.getSelectedItem()).equals("Brak dostawców w bazie") && typeShort == 0 )
+    				if(((String)ID_dostawcy.getSelectedItem()).equals("Brak dostawców w bazie") && typeShort == 1 )
         			{
         				JOptionPane.showMessageDialog(panel, "Brak dostawców w bazie!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
         			}
