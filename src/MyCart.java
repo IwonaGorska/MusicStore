@@ -201,7 +201,7 @@ public class MyCart extends JFrame
         String id = "";
 		for(int i =0; i<model.getRowCount(); i++)
 		{
-			id = (String)model.getValueAt(i, 0);
+			id = (String)model.getValueAt(i, 1);
 			try 
 			{
 				res2 = stmt.executeQuery("select * from egzemplarze where indeks = " + id + ";");
@@ -409,16 +409,17 @@ public class MyCart extends JFrame
 		    		int nr = -1;
 		    		try 
 					{
-		    			nrRes = stmt.executeQuery("select count(*) as counter from produkty_faktur;");
+		    			//tu chyba trzeba nie robic counter tylko wszystkie po kolei ogladac, bo sa usuwane stad wiersze
+		    			nrRes = stmt.executeQuery("select * from produkty_faktur;");
 				        while(nrRes.next())
 				        {
-				        	nr = nrRes.getInt("counter") + 1;       
+				        	nr = nrRes.getInt("indeks");       
 				        }
 					} catch (SQLException f) 
 					{
 						f.printStackTrace();
 					}
-	        		
+	        		nr = nr + 1;
 	        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString5 +  ", " + valueString2 + ");";
 	        		try 
 	        		{

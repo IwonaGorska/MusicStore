@@ -454,6 +454,7 @@ public class Products extends JFrame
         	}
     		NewInvoice.saveButton.setVisible(true);
     		NewInvoice.amount  = amount;
+    		System.out.println("amount = " + amount);
     		dispose();
         }
     }
@@ -518,7 +519,7 @@ public class Products extends JFrame
         		valueObject6 = table.getValueAt(i, 6);
         		valueString6 = (String)valueObject6;
         		
-        		if(!valueString2.equals("") && (!(valueString6.equals("0"))))
+        		if(!valueString2.equals("") && (!(valueString6.equals("0"))) && Integer.parseInt(valueString2) <= Integer.parseInt(valueString6)  )
         		{
 	        		ResultSet nrRes = null;
 		    		int nr = -1;
@@ -614,22 +615,23 @@ public class Products extends JFrame
         		valueString2 = (String)valueObject2;
         		String pieces = (String)model.getValueAt(i, 6);
         		
-        		if(!valueString2.equals("") && !pieces.equals("0") )
+        		if(!valueString2.equals("") && !pieces.equals("0") && Integer.parseInt(valueString2) <= Integer.parseInt(pieces)  )
         		{
 	        		ResultSet nrRes = null;
-	        		int nr = -1;
+	        		int nr = 1;
 	        		try 
 	    			{
-	        			nrRes = stmt.executeQuery("select count(*) as counter from koszyk;");
+	        			nrRes = stmt.executeQuery("select * from koszyk;");
 	    		        while(nrRes.next())
 	    		        {
-	    		        	nr = nrRes.getInt("counter") + 1;       
+	    		        	nr = nrRes.getInt("indeks") + 1;       
 	    		        }
 	    			} catch (SQLException f) 
 	    			{
 	    				f.printStackTrace();
 	    			}
-        		
+	        		
+//	        		nr = nr + 1;
         			insertSql = "INSERT into koszyk (indeks, indeks_egzemplarza, indeks_klienta, sztuki) values (" + Integer.toString(nr) + ", " + valueString1 + ", " + Integer.toString(indeksClient) + ", " + valueString2 + ");";
             		System.out.println(insertSql);
             		try 
@@ -642,6 +644,7 @@ public class Products extends JFrame
         		}
         		
         	}
+        	dispose();
         }
     }
     

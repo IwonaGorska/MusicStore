@@ -104,7 +104,7 @@ public class ClientPanel
             		String t = text.getText();
             		t = t.toLowerCase();
             		String sql;
-            		sql = "SELECT * from egzemplarze where indeks_plyty IN (select indeks from plyty where lower(tytul) like '%" + t + "%') order by indeks;";
+            		sql = "SELECT * from egzemplarze where indeks_plyty IN (select indeks from plyty where lower(tytul) like '%" + t + "%' or lower(wykonawca) like '%" + t + "%') order by indeks;";
             		System.out.println(sql);
             		Products P = new Products(sql, false, indeks);
     				P.setVisible(true);

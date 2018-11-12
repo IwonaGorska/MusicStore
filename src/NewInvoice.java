@@ -244,7 +244,7 @@ public class NewInvoice extends JFrame
         	
         	if(canOpen == true)
         	{
-        		String sql = "select * from egzemplarze;";
+        		String sql = "select * from egzemplarze order by indeks;";
             	int contrahentType;
             	if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))
             		contrahentType = -10;
