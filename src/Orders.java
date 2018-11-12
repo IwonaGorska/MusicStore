@@ -116,7 +116,7 @@ public class Orders extends JFrame
     {
     	JPanel tablePanel = new JPanel(new BorderLayout());
     	panel.add(Box.createHorizontalStrut(30));
-    	String[] colHeadings = {"NUMER","INDEKS_PRODUKTU", "DATA_ZLOZENIA"};
+    	String[] colHeadings = {"NUMER","INDEKS_PRODUKTU", "DATA_ZLOZENIA", "SZTUKI"};
         int numRows = 0;
         model = new DefaultTableModel(numRows, colHeadings.length) ;
         model.setColumnIdentifiers(colHeadings);
@@ -132,12 +132,13 @@ public class Orders extends JFrame
         
         table.setRowHeight(30);
   
-        for (int i=0; i<3; i++) 
+        for (int i=0; i<4; i++) 
         {
         	  TableColumn column = table.getColumnModel().getColumn(i);
         	  if (i==0) column.setPreferredWidth(30);
         	  if (i==1) column.setPreferredWidth(100);
         	  if (i==2) column.setPreferredWidth(100);
+        	  if (i==3) column.setPreferredWidth(100);
         }
        
         ResultSet res = null;
@@ -149,11 +150,12 @@ public class Orders extends JFrame
 	        	int indeks = res.getInt("indeks");
 	        	int indeks_egz = res.getInt("indeks_egzemplarza");
 	            Date data_zlozenia = res.getDate("data_zlozenia");
+	            int pieces = res.getInt("sztuki");
 	            
 				Format formatter = new SimpleDateFormat("yyyy-MM-dd");
 				String stringDate = formatter.format(data_zlozenia);
 
-	            String[] newRow = { Integer.toString(indeks), Integer.toString(indeks_egz), stringDate};
+	            String[] newRow = { Integer.toString(indeks), Integer.toString(indeks_egz), stringDate, Integer.toString(pieces)};
 	            model.addRow(newRow);
 	            
 	            table.setEnabled(false);

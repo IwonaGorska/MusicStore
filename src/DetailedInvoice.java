@@ -168,18 +168,19 @@ public class DetailedInvoice extends JFrame
         String id = "";
 		for(int i =0; i<model.getRowCount(); i++)
 		{
+			id = (String)model.getValueAt(i, 0);
 			try 
 			{
 				res2 = stmt.executeQuery("select * from egzemplarze where indeks = " + id + ";");
-		        while(res.next())
+		        while(res2.next())
 		        {
-		        	int indeks = res.getInt("indeks");
-		        	int indeksAlbum = res.getInt("indeks_plyty");
-		        	short nosnik = res.getShort("nosnik");
-		        	BigDecimal cena = res.getBigDecimal("cena");
-		        	BigDecimal koszt_dostawy = res.getBigDecimal("koszt_dostawy");
-		        	short rodzaj = res.getShort("rodzaj");
-		        	int stan = res.getInt("stan");
+		        	int indeks = res2.getInt("indeks");
+		        	int indeksAlbum = res2.getInt("indeks_plyty");
+		        	short nosnik = res2.getShort("nosnik");
+		        	BigDecimal cena = res2.getBigDecimal("cena");
+		        	BigDecimal koszt_dostawy = res2.getBigDecimal("koszt_dostawy");
+		        	short rodzaj = res2.getShort("rodzaj");
+		        	int stan = res2.getInt("stan");
 
 					int c = Integer.valueOf(cena.intValue());
 					int k_d = Integer.valueOf(koszt_dostawy.intValue());

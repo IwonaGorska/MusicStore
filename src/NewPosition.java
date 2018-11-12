@@ -66,9 +66,9 @@ class NewPosition extends JFrame
           studioField = new JTextField(6);
           durationField = new JSpinner();
           durationField.setModel(new javax.swing.SpinnerNumberModel(MIN_VAL, MIN_VAL, MAX_VAL, 1));
-          durationField.setEnabled(false);
+          durationField.setEnabled(true);
           number = ((JSpinner.DefaultEditor)durationField.getEditor()).getTextField();
-          number.setEditable(false);
+          number.setEditable(true);
 
           title.setSize(200,30);
           artist.setSize(200,30);
@@ -160,7 +160,8 @@ class NewPosition extends JFrame
 				}
 				
 				
-				String sqlInsert = "INSERT into plyty (indeks, tytul, wykonawca, gatunek, data_premiery, wydawnictwo, dlugosc_w_minutach) values (" + Integer.toString(nr) + ", " +  titleField.getText() + ", " + artistField.getText() + ", " + genreField.getText() + " , " + comeOutField.getText() + " , " +  studioField.getText() + " , " + number.getText() +  ");";
+				String sqlInsert = "INSERT into plyty (indeks, tytul, wykonawca, gatunek, data_premiery, wydawnictwo, dlugosc_w_minutach) values (" + Integer.toString(nr) + ", '" +  titleField.getText() + "', '" + artistField.getText() + "', '" + genreField.getText() + "' , '" + comeOutField.getText() + "' , '" +  studioField.getText() + "' , " + number.getText() +  ");";
+				System.out.println(sqlInsert);
 				try 
 				{
 					int insertInt = stmt.executeUpdate(sqlInsert);
@@ -171,7 +172,7 @@ class NewPosition extends JFrame
 				dispose();
 
 	        	String[] newRow = {Integer.toString(nr), titleField.getText(), artistField.getText(), genreField.getText(), comeOutField.getText(),studioField.getText(), number.getText() };
-	        	Products.model.addRow(newRow);
+	        	Positions.model.addRow(newRow);
 			}
         }
     }

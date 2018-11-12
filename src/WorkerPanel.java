@@ -103,7 +103,7 @@ public class WorkerPanel
             		String t = text.getText();
             		t = t.toLowerCase();
             		String sql;
-            		sql = "SELECT * from egzemplarze where indeks_plyty IN (select indeks from plyty where lower(tytul) like '%" + t + "%');";
+            		sql = "SELECT * from egzemplarze where indeks_plyty IN (select indeks from plyty where lower(tytul) like '%" + t + "%') order by indeks;";
             		System.out.println(sql);
             		Products P = new Products(sql, true, -1); // -1 nie bêdzie u¿ywane i tak, bo to nie klient
     				P.setVisible(true);
@@ -121,7 +121,7 @@ public class WorkerPanel
 	      	@Override
 	      	public void actionPerformed(ActionEvent e) 
 	      	{
-	      		String sql = "SELECT * from egzemplarze;";
+	      		String sql = "SELECT * from egzemplarze order by indeks;";
 		    		Products P = new Products(sql, true, -1); // -1 nie bêdzie u¿ywane i tak, bo to nie klient
 					P.setVisible(true);
 	      	}

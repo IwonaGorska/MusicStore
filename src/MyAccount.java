@@ -221,6 +221,7 @@ public class MyAccount extends JFrame
 				{
 					e1.printStackTrace();
 				}
+				dispose();
     		}  
         }
     }

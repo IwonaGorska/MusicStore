@@ -20,7 +20,8 @@ public class NewInvoice extends JFrame
    JComboBox type, ID_klienta, ID_dostawcy;
    Connection conn;
    Statement stmt;
-   JButton  saveButton;
+   static JButton  saveButton;
+   JButton  addButton;
    static double amount;
 	
    public NewInvoice() 
@@ -48,7 +49,7 @@ public class NewInvoice extends JFrame
 		  }
 		  
           JButton  closeButton = new JButton ("Zamknij");
-          JButton  addButton = new JButton ("Dodaj produkty na fakturê");
+          addButton = new JButton ("Dodaj produkty na fakturê");
           addButton.setSize(200, 30);
           addButton.addActionListener(new ButtonAdd());
           panel.add(addButton);
@@ -58,7 +59,7 @@ public class NewInvoice extends JFrame
           closeButton.setSize(90, 30); 
            
           addButton.setLocation(getWidth()-400,getHeight()-90);
-          type = new JComboBox(new Object[]{"Faktura przychodz¹ca (1)", "Faktura wychodz¹ca (0)"});
+          type = new JComboBox(new Object[]{"Faktura wychodz¹ca (0)", "Faktura przychodz¹ca (1)"});
           ID_klienta = new JComboBox();
           ID_dostawcy = new JComboBox();
           ID_dostawcy.setEnabled(false);
@@ -73,15 +74,15 @@ public class NewInvoice extends JFrame
           {
         	    public void actionPerformed(ActionEvent e) 
         	    {
-        	    	if((String)type.getSelectedItem() == "Faktura wychodz¹ca (0)")
-        	    	{
-        	    		ID_klienta.setEnabled(false);
-        	    		ID_dostawcy.setEnabled(true);
-        	    	}
-        	    	else
+        	    	if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))
         	    	{
         	    		ID_klienta.setEnabled(true);
         	    		ID_dostawcy.setEnabled(false);
+        	    	}
+        	    	else
+        	    	{
+        	    		ID_klienta.setEnabled(false);
+        	    		ID_dostawcy.setEnabled(true);
         	    	}	
         	    		
         	    }
@@ -170,7 +171,7 @@ public class NewInvoice extends JFrame
     			invoiceNrRes = stmt.executeQuery("select count(*) as counter from faktury;");
 		        while(invoiceNrRes.next())
 		        {
-		        	invoiceNr = invoiceNrRes.getInt("counter") + 1;       
+		        	invoiceNr = invoiceNrRes.getInt("counter") ;       
 		        }
 			} catch (SQLException f) 
 			{
@@ -187,8 +188,14 @@ public class NewInvoice extends JFrame
 		        	int productId = backUpdateRes.getInt("indeks_egzemplarza"); 
 		        	int pieces = backUpdateRes.getInt("sztuki");
 		        	
-	        		String updSql = "update egzemplarze set stan = stan + " + Integer.toString(pieces) + " where indeks = " + Integer.toString(productId) + ";";
-	        		try 
+		        	//cofam zmiany na stanie
+		        	String updSql = "";
+		        	if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))		        	
+		        		updSql = "update egzemplarze set stan = stan + " + Integer.toString(pieces) + " where indeks = " + Integer.toString(productId) + ";";
+		        	else
+	        			updSql = "update egzemplarze set stan = stan - " + Integer.toString(pieces) + " where indeks = " + Integer.toString(productId) + ";";
+	        		
+		        	try 
 	        		{
 						stmt.executeUpdate(updSql);
 					} catch (SQLException e1) 
@@ -203,11 +210,13 @@ public class NewInvoice extends JFrame
 			}
     		
     		
-        	// I TRZEBA USUNAC DODANE W OKNIE DODAWANIA PRODUKTU NA FAKTURE WIERSZE Z TABELI PRODUKTY_FAKTUR
-        	String sqlDelete = "DELETE from produkty_faktur where indeks_faktury = " + Integer.toString(invoiceNr) + ";";
+        	// I TRZEBA USUNAC DODANE W OKNIE DODAWANIA PRODUKTU NA FAKTURE WIERSZE Z TABELI PRODUKTY_FAKTUR I FAKTURE TEZ
+        	String sqlDelete1 = "DELETE from produkty_faktur where indeks_faktury = " + Integer.toString(invoiceNr) + ";";
+        	String sqlDelete2 = "DELETE from faktury where indeks = " + Integer.toString(invoiceNr) + ";";
 				try 
 				{
-					int sqlDeleteInt = stmt.executeUpdate(sqlDelete);
+					stmt.executeUpdate(sqlDelete1);
+					stmt.executeUpdate(sqlDelete2);
 				} catch (SQLException e1) 
 				{
 					e1.printStackTrace();
@@ -221,70 +230,102 @@ public class NewInvoice extends JFrame
     {
         public void actionPerformed(ActionEvent e)
         {
-        	String sql = "select * from egzemplarze;";
-        	Products P = new Products(sql, true, -10);
-			P.setVisible(true);
+        	boolean canOpen = true;
+        	if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))
+            {
+            	if(((String)ID_dostawcy.getSelectedItem()).equals("Brak dostawców w bazie"))
+            		canOpen = false;
+            }
+        	if(((String)type.getSelectedItem()).equals("Faktura przychodz¹ca (1)"))
+            {
+            	if(((String)ID_dostawcy.getSelectedItem()).equals("Brak klientów w bazie"))
+            		canOpen = false;
+            }
+        	
+        	if(canOpen == true)
+        	{
+        		String sql = "select * from egzemplarze;";
+            	int contrahentType;
+            	if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))
+            		contrahentType = -10;
+            	else
+            		contrahentType = -20;
+            	Products P = new Products(sql, true, contrahentType);
+            	addButton.setVisible(false); // zeby nie wciskali juz wiecej, bo znow owstanie "pusta" faktura
+            	type.setEnabled(false);
+            	ID_klienta.setEnabled(false);
+            	ID_dostawcy.setEnabled(false);
+            	// i nie usune jej, bo usuwa j¹ dopiero przycisk zamknij
+//            	saveButton.setVisible(true);
+    			P.setVisible(true);
+        	}      	
         }
     }
  
     private class ButtonSave implements ActionListener
     { 
+    	
         public void actionPerformed(ActionEvent e)
         {
-            short typeShort;
-            int IDint = -1;//zeby kompilator sie nie czepial, a i tak jesli nie ma kntrahentow to nie zostanie wykorzystane nigdzie
-            if((String)type.getSelectedItem() == "Faktura wychodz¹ca (0)")
-            {
-            	typeShort = 0;
-            	if((String)ID_dostawcy.getSelectedItem() != "Brak dostawców w bazie")
-            		IDint = Integer.parseInt((String)ID_dostawcy.getSelectedItem());
-            }	
-            else
-            {
-            	typeShort = 1;
-            	if((String)ID_klienta.getSelectedItem() != "Brak klientów w bazie")
-            		IDint = Integer.parseInt((String)ID_klienta.getSelectedItem());
-            }
+        	System.out.println("AMOUNT = " + amount);
+        	if(amount > 0)
+        	{
+	            short typeShort;
+	            int IDint = -1;//zeby kompilator sie nie czepial, a i tak jesli nie ma kntrahentow to nie zostanie wykorzystane nigdzie
+	            
+	            ResultSet invoiceNrRes = null;
+	    		int invoiceNr = -1;
+	    		try 
+				{
+	    			invoiceNrRes = stmt.executeQuery("select count(*) as counter from faktury;");
+			        while(invoiceNrRes.next())
+			        {
+			        	invoiceNr = invoiceNrRes.getInt("counter");       
+			        }
+				} catch (SQLException f) 
+				{
+					f.printStackTrace();
+				}
+            
+	    		if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))
+	            {
+	            	typeShort = 0;
+	            	if(!((String)ID_dostawcy.getSelectedItem()).equals("Brak dostawców w bazie"))
+	            		IDint = Integer.parseInt((String)ID_dostawcy.getSelectedItem());
+	            }	
+	            else
+	            {
+	            	typeShort = 1;
+	            	if(!((String)ID_klienta.getSelectedItem()).equals("Brak klientów w bazie"))
+	            		IDint = Integer.parseInt((String)ID_klienta.getSelectedItem());
+	            }
             	
     			double vatD = 0.23 * amount;	
                 double nettoD = amount - vatD;
     			
-    			if((String)ID_klienta.getSelectedItem() == "Brak klientów w bazie" && typeShort == 1 )
+    			if(((String)ID_klienta.getSelectedItem()).equals("Brak klientów w bazie") && typeShort == 1 )
     			{
     				JOptionPane.showMessageDialog(panel, "Brak klientów w bazie!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
     			}
 	
     			else
     			{
-    				if((String)ID_dostawcy.getSelectedItem() == "Brak dostawców w bazie" && typeShort == 0 )
+    				if(((String)ID_dostawcy.getSelectedItem()).equals("Brak dostawców w bazie") && typeShort == 0 )
         			{
         				JOptionPane.showMessageDialog(panel, "Brak dostawców w bazie!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
         			}
     				else
     				{
-    					ResultSet invoiceNrRes = null;
-    		    		int invoiceNr = -1;
-    		    		try 
-    					{
-    		    			invoiceNrRes = stmt.executeQuery("select count(*) as counter from faktury;");
-    				        while(invoiceNrRes.next())
-    				        {
-    				        	invoiceNr = invoiceNrRes.getInt("counter") + 1;       
-    				        }
-    					} catch (SQLException f) 
-    					{
-    						f.printStackTrace();
-    					}
     					
-    					String sqlInsert = "INSERT into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) values (" + Integer.toString(invoiceNr) + ", current_date, " + String.valueOf(nettoD) + ", " + String.valueOf(amount) + ", " + String.valueOf(vatD) + " , " + typeShort + " , " + IDint + ");";
-        					try 
+            			String sqlInsert = "update faktury set data_sprzedazy = current_date, wartosc_netto = " + String.valueOf(nettoD) + ", wartosc_brutto = " + String.valueOf(amount) + ", wartosc_vat = " + String.valueOf(vatD) + ", rodz_dok = " + typeShort + "," + "id_klienta_dostawcy = " + Integer.toString(IDint) + " where indeks = " + Integer.toString(invoiceNr) + ";" ;
+            				try 
         					{
-    							int insertInt = stmt.executeUpdate(sqlInsert);
+    							stmt.executeUpdate(sqlInsert);
     						} catch (SQLException e1) 
         					{
     							e1.printStackTrace();
     						}	
-        					dispose();
+        					dispose(); //! juz do przycisku close nie dojdzie i dobrze
         					
         					String currDate;
     					    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -292,11 +333,11 @@ public class NewInvoice extends JFrame
     					    currDate = dateFormat.format(date);
         					
         		        	int nr = Invoices.model.getRowCount() + 1;
-        		        	String[] newRow = {Integer.toString(nr), currDate, String.valueOf(nettoD), String.valueOf(amount), String.valueOf(vatD), String.valueOf(typeShort), Integer.toString(IDint)};
+        		        	String[] newRow = {Integer.toString(nr), currDate, String.valueOf(nettoD), String.valueOf(amount), String.valueOf(vatD), String.valueOf(typeShort), Integer.toString(IDint), "Zobacz produkty"};
         		        	Invoices.model.addRow(newRow);
     				}			
     			}										
-    		
+        	}
         }
     }
  

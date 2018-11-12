@@ -135,7 +135,7 @@ public class MyCart extends JFrame
     {
     	JPanel tablePanel = new JPanel(new BorderLayout());
     	panel.add(Box.createHorizontalStrut(30));
-    	String[] colHeadings = {"IND_EGZEMPLARZA", "P£YTA", "NOSNIK", "RODZAJ", "STAN", "CENA", "KOSZT_DOSTAWY",  "SZTUK", "¯¥DANA_LICZBA"};
+    	String[] colHeadings = {"INDEKS", "IND_EGZEMPLARZA", "P£YTA", "NOSNIK", "RODZAJ", "STAN", "CENA POJ.", "KOSZT_DOSTAWY POJ.",  "SZTUK", "¯¥DANA_LICZBA"};
         int numRows = 0;
         model = new DefaultTableModel(numRows, colHeadings.length) ;
         model.setColumnIdentifiers(colHeadings);
@@ -146,7 +146,7 @@ public class MyCart extends JFrame
 		    {
 		    	switch(column)
 		    	{
-		        case 8:
+		        case 9:
 		          return true;
 		        default: return false;
 		       }
@@ -163,20 +163,21 @@ public class MyCart extends JFrame
 
         table.setRowHeight(30);
   
-        for (int i=0; i<9; i++) 
+        for (int i=0; i<10; i++) 
         {
         	  TableColumn column = table.getColumnModel().getColumn(i);
-        	  if (i==0) column.setPreferredWidth(20);
-        	  if (i==1) column.setPreferredWidth(90);
-        	  if (i==2) column.setPreferredWidth(90);
-        	  if (i==3) column.setPreferredWidth(90);
-        	  if (i==4) column.setPreferredWidth(90);
-        	  if (i==5) column.setPreferredWidth(90);
-        	  if (i==6) column.setPreferredWidth(90);
-        	  if (i==7) column.setPreferredWidth(90);
-        	  if (i==8) column.setPreferredWidth(90);
-        	}
-        
+        	  if (i==0) column.setPreferredWidth(40);
+        	  if (i==1) column.setPreferredWidth(80);
+        	  if (i==2) column.setPreferredWidth(60);
+        	  if (i==3) column.setPreferredWidth(40);
+        	  if (i==4) column.setPreferredWidth(60);
+        	  if (i==5) column.setPreferredWidth(40);
+        	  if (i==6) column.setPreferredWidth(50);
+        	  if (i==7) column.setPreferredWidth(80);
+        	  if (i==8) column.setPreferredWidth(50);
+        	  if (i==9) column.setPreferredWidth(60);
+        }
+
         ResultSet res = null;
 		try 
 		{
@@ -184,9 +185,10 @@ public class MyCart extends JFrame
 			res = stmt.executeQuery(sql);
 	        while(res.next())
 	        {
+	        	int indeksWpisu = res.getInt("indeks");
 	        	int indeks_egzemplarza = res.getInt("indeks_egzemplarza");
 	        	int sztuki = res.getInt("sztuki");
-	            String[] newRow = { Integer.toString(indeks_egzemplarza), "", "", "", "", "", "", Integer.toString(sztuki), ""};
+	            String[] newRow = { Integer.toString(indeksWpisu), Integer.toString(indeks_egzemplarza), "", "", "", "", "", "", Integer.toString(sztuki), ""};
 	            model.addRow(newRow);            
 	        }
 		} catch (SQLException e) 
@@ -199,18 +201,19 @@ public class MyCart extends JFrame
         String id = "";
 		for(int i =0; i<model.getRowCount(); i++)
 		{
+			id = (String)model.getValueAt(i, 0);
 			try 
 			{
 				res2 = stmt.executeQuery("select * from egzemplarze where indeks = " + id + ";");
-		        while(res.next())
+		        while(res2.next())
 		        {
-		        	int indeks = res.getInt("indeks");
-		        	int indeksAlbum = res.getInt("indeks_plyty");
-		        	short nosnik = res.getShort("nosnik");
-		        	BigDecimal cena = res.getBigDecimal("cena");
-		        	BigDecimal koszt_dostawy = res.getBigDecimal("koszt_dostawy");
-		        	short rodzaj = res.getShort("rodzaj");
-		        	int stan = res.getInt("stan");
+		        	int indeks = res2.getInt("indeks");
+		        	int indeksAlbum = res2.getInt("indeks_plyty");
+		        	short nosnik = res2.getShort("nosnik");
+		        	BigDecimal cena = res2.getBigDecimal("cena");
+		        	BigDecimal koszt_dostawy = res2.getBigDecimal("koszt_dostawy");
+		        	short rodzaj = res2.getShort("rodzaj");
+		        	int stan = res2.getInt("stan");
 					int c = Integer.valueOf(cena.intValue());
 					int k_d = Integer.valueOf(koszt_dostawy.intValue());
 					String n = "", r = "";
@@ -222,13 +225,13 @@ public class MyCart extends JFrame
 						r = "singiel";
 					else
 						r = "album";
-					
-					table.setValueAt(Integer.toString(indeksAlbum), i, 1);
-					table.setValueAt(n, i, 2);
-					table.setValueAt(r, i, 3);
-					table.setValueAt(Integer.toString(stan), i, 4);
-					table.setValueAt(Integer.toString(c), i, 5);
-					table.setValueAt(Integer.toString(k_d), i, 6);		                       
+				
+					table.setValueAt(Integer.toString(indeksAlbum), i, 2);
+					table.setValueAt(n, i, 3);
+					table.setValueAt(r, i, 4);
+					table.setValueAt(Integer.toString(stan), i, 5);
+					table.setValueAt(Integer.toString(c), i, 6);
+					table.setValueAt(Integer.toString(k_d), i, 7);		                       
 		        }
 			} catch (SQLException e) 
 			{
@@ -242,9 +245,9 @@ public class MyCart extends JFrame
 		String id2 = "";
 		for(int i =0; i<model.getRowCount(); i++)
     	{
+			id2 = (String)table.getValueAt(i, 1);
 	        try 
 			{
-	        	id2 = (String)table.getValueAt(i, 1);
 	        	resTitle = stmt.executeQuery("select tytul from plyty where indeks = " + id2 + ";");
 		        while(resTitle.next())
 		        {
@@ -254,7 +257,7 @@ public class MyCart extends JFrame
 			{
 				e.printStackTrace();
 			}
-	        table.setValueAt(titleAlbum, i, 1);
+	        table.setValueAt(titleAlbum, i, 2);
     	}
 
         panel.add(Box.createHorizontalStrut(30));      
@@ -291,43 +294,41 @@ public class MyCart extends JFrame
     {
     	public void actionPerformed(ActionEvent e)
         {
-        	String insertSql;
         	String valueString1;
         	Object valueObject1;
         	String valueString2;
         	Object valueObject2;
-        	double valueInt3;
-        	Object valueObject3;
-        	double valueInt4;
-        	Object valueObject4;
     		
     		for(int i = 0; i<model.getRowCount(); i++)
         	{
+//"INDEKS", "IND_EGZEMPLARZA", "P£YTA", "NOSNIK", "RODZAJ", "STAN", "CENA POJ.", "KOSZT_DOSTAWY POJ.",  "SZTUK", "¯¥DANA_LICZBA"};	   			
         		valueObject1 = table.getValueAt(i, 0);
         		valueString1 = (String)valueObject1;
-        		valueObject2 = table.getValueAt(i, 7);
+        		valueObject2 = table.getValueAt(i, 9);
         		valueString2 = (String)valueObject2;
-        		valueObject3 = table.getValueAt(i, 3);
-        		valueInt3 = Double.parseDouble((String)valueObject3);
-        		valueObject4 = table.getValueAt(i, 4);
-        		valueInt4 = Double.parseDouble((String)valueObject4);
-        		String updSql = "update koszyk set sztuki = sztuki - " + valueString2 + " where indeks = " + valueString1 + ";";
-        		try 
+        		if(valueString2.equals(""));
+        		else
         		{
-					stmt.executeUpdate(updSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
-        		String deleteSql = "delete from koszyk where sztuki = 0;";
-        		try 
-        		{
-					stmt.executeUpdate(deleteSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
-        		dispose();
+        			String updSql = "update koszyk set sztuki = sztuki - " + valueString2 + " where indeks = " + valueString1 + ";";
+            		System.out.println(updSql);
+            		try 
+            		{
+    					stmt.executeUpdate(updSql);
+    				} catch (SQLException e1) 
+            		{
+    					e1.printStackTrace();
+    				}
+            		String deleteSql = "delete from koszyk where sztuki = 0;";
+            		try 
+            		{
+    					stmt.executeUpdate(deleteSql);
+    				} catch (SQLException e1) 
+            		{
+    					e1.printStackTrace();
+    				}
+        		}
+        		
+        		dispose();// zamiast tego usuniecie wiersza w tabeli pownno sie zrobic
         	}
         }
     }
@@ -349,10 +350,12 @@ public class MyCart extends JFrame
         	Object valueObject1;
         	String valueString2;
         	Object valueObject2;
-        	double valueInt3;
+        	double valueDouble3;
         	Object valueObject3;
-        	double valueInt4;
+        	double valueDouble4;
         	Object valueObject4;
+        	String valueString5;
+        	Object valueObject5;
         	
         	double amount = 0;
         	ResultSet invoiceNrRes = null;
@@ -369,73 +372,121 @@ public class MyCart extends JFrame
 				f.printStackTrace();
 			}
     		
+    		//newEmptyInvoice //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    		try 
+			{
+    			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) "
+    					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 1, 1);");
+			} catch (SQLException f) 
+			{
+				f.printStackTrace();
+			}
+    		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    		
     		for(int i = 0; i<model.getRowCount(); i++)
         	{
-        		valueObject1 = table.getValueAt(i, 0);
+//"INDEKS", "IND_EGZEMPLARZA", "P£YTA", "NOSNIK", "RODZAJ", "STAN", "CENA POJ.", "KOSZT_DOSTAWY POJ.",  "SZTUK", "¯¥DANA_LICZBA"};    			
+        		valueObject1 = table.getValueAt(i, 0);//indeks w relacji koszyk tego wpisu
         		valueString1 = (String)valueObject1;
-        		valueObject2 = table.getValueAt(i, 7);
+        		
+        		valueObject2 = table.getValueAt(i, 9);//wartosc zadana
         		valueString2 = (String)valueObject2;
-        		valueObject3 = table.getValueAt(i, 3);
-        		valueInt3 = Double.parseDouble((String)valueObject3);
-        		valueObject4 = table.getValueAt(i, 4);
-        		valueInt4 = Double.parseDouble((String)valueObject4);
+        		int mnoznikCen;
+        		if(valueString2.equals(""))
+        			mnoznikCen = 0;        			
+        		else
+        			mnoznikCen = Integer.parseInt(valueString2);
+        		valueObject3 = table.getValueAt(i, 6);//jednostkowa cena
+        		valueDouble3 = Double.parseDouble((String)valueObject3); 
+        		valueObject4 = table.getValueAt(i, 7);//koszt dostawy jednostkowy
+        		valueDouble4 = Double.parseDouble((String)valueObject4);
+        		valueObject5 = table.getValueAt(i, 1);//indeks egzemplarza
+        		valueString5 = (String)valueObject5;
         		
-        		ResultSet nrRes = null;
-	    		int nr = -1;
-	    		try 
-				{
-	    			nrRes = stmt.executeQuery("select count(*) as counter from produkty_faktur;");
-			        while(nrRes.next())
-			        {
-			        	nr = nrRes.getInt("counter") + 1;       
-			        }
-				} catch (SQLException f) 
-				{
-					f.printStackTrace();
-				}
-        		
-        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString1 +  ", " + valueString2 + ");";
-        		try 
-        		{
-					stmt.executeUpdate(insertSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
-        		
-        		String updSql = "update egzemplarze set stan = stan - " + valueString2 + " where indeks = " + valueString1 + ";";
-        		try 
-        		{
-					stmt.executeUpdate(updSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
-        		
-        		amount = amount + valueInt3 + valueInt4;         		
+        		if(!valueString2.equals(""))
+        		{	
+	        		ResultSet nrRes = null;
+		    		int nr = -1;
+		    		try 
+					{
+		    			nrRes = stmt.executeQuery("select count(*) as counter from produkty_faktur;");
+				        while(nrRes.next())
+				        {
+				        	nr = nrRes.getInt("counter") + 1;       
+				        }
+					} catch (SQLException f) 
+					{
+						f.printStackTrace();
+					}
+	        		
+	        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString5 +  ", " + valueString2 + ");";
+	        		try 
+	        		{
+						stmt.executeUpdate(insertSql);
+						System.out.println(insertSql);
+//						stmt.executeUpdate("delete from koszyk where indeks = " + Integer.toString(nr) + ";");
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+	        		
+	        		String updSql = "update egzemplarze set stan = stan - " + valueString2 + " where indeks = " + valueString5 + ";";
+	        		try 
+	        		{
+						stmt.executeUpdate(updSql);
+						System.out.println(updSql);
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+	        		
+	        		amount = amount + valueDouble3*mnoznikCen + valueDouble4*mnoznikCen;    
+	        		
+	        		
+	        		String updSql2 = "update koszyk set sztuki = sztuki - " + valueString2 + " where indeks = " + valueString1 + ";";
+	        		try 
+	        		{
+						stmt.executeUpdate(updSql2);
+						System.out.println(updSql2);
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+	        		String deleteSql = "delete from koszyk where sztuki = 0;";
+	        		try 
+	        		{
+						stmt.executeUpdate(deleteSql);
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+        		}  		
         	}
-    	   
-    		
-    		ResultSet nrRes = null;
-    		int nr = -1;
-    		try 
-			{
-    			nrRes = stmt.executeQuery("select count(*) as counter from faktury;");
-		        while(nrRes.next())
-		        {
-		        	nr = nrRes.getInt("counter") + 1;       
-		        }
-			} catch (SQLException f) 
-			{
-				f.printStackTrace();
-			}
-    		try 
-			{
-    			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) values (" + Integer.toString(nr) + ", current_date, " + String.valueOf(0.77 * amount) + "," + String.valueOf(amount) + "," + String.valueOf(0.23 * amount) +  ", 1, " + Integer.toString(indeksClient)+ ");");				
-			} catch (SQLException f) 
-			{
-				f.printStackTrace();
-			}
+   		
+    		if(amount > 0)
+    		{
+        		try 
+    			{
+        			String s = "update faktury set data_sprzedazy = current_date, wartosc_netto = " + String.valueOf(0.77 * amount) + ", wartosc_brutto = " + String.valueOf(amount) + ", wartosc_vat = " + String.valueOf(0.23 * amount) + ", rodz_dok = 1, id_klienta_dostawcy = " + Integer.toString(indeksClient) + "where indeks = " + Integer.toString(invoiceNr) + ";" ;
+        			System.out.println(s);
+        			stmt.executeUpdate(s);
+
+    			} catch (SQLException f) 
+    			{
+    				f.printStackTrace();
+    			}	       		
+    		}
+    		else
+    		{
+    			try 
+    			{
+    				//usuwam niepotrzebna fakture stworzona z glupimi danymi na starcie na potrzeby wpisywania do produkty_faktur, bo jednak user sie wycofal i nic nie wpisal w ostatnia kolumne
+					stmt.executeUpdate("delete from faktury where indeks = " + Integer.toString(invoiceNr) + ";");
+				} catch (SQLException e1) 
+    			{
+					e1.printStackTrace();
+				}
+    		}
         	
         }
     }

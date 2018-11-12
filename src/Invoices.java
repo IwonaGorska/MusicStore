@@ -33,7 +33,7 @@ public class Invoices extends JFrame
         setTitle("Moje faktury");       
         indeks = id;
         addEnabled = false;        
-        sql = "SELECT * from faktury where id_klienta_dostawcy = " + Integer.toString(indeks) + ";";
+        sql = "SELECT * from faktury where id_klienta_dostawcy = " + Integer.toString(indeks) + " order by indeks;";
         System.out.println(sql);
         initComponents();
    }
@@ -42,7 +42,7 @@ public class Invoices extends JFrame
    {
         setTitle("Faktury");
         addEnabled = true;
-        sql = "SELECT * from faktury;";
+        sql = "SELECT * from faktury order by indeks;";
         System.out.println(sql);
         initComponents(); 
    }

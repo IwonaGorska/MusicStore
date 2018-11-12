@@ -156,7 +156,7 @@ public class NewProduct extends JFrame
     					int ind = -1;
     					try 
     					{
-    						ResultSet rs1 = stmt.executeQuery("SELECT indeks from plyty where tytul = " + (String)titleCombo.getSelectedItem() + ";");
+    						ResultSet rs1 = stmt.executeQuery("SELECT indeks from plyty where tytul = '" + (String)titleCombo.getSelectedItem() + "';");
     						while(rs1.next())
     		 			 	{
     							ind= rs1.getInt("indeks");
@@ -166,6 +166,19 @@ public class NewProduct extends JFrame
     						e1.printStackTrace();
     					}
 
+    					ResultSet titleRes = null;
+    					String titleToRow = "";
+    		    		try 
+    					{
+    		    		titleRes = stmt.executeQuery("select tytul from plyty where indeks = " + Integer.toString(ind) + ";");
+    				        while(titleRes.next())
+    				        {
+    				        	titleToRow = titleRes.getString("tytul");       
+    				        }
+    					} catch (SQLException f)  
+    					{
+    						f.printStackTrace();
+    					}
     					
     					ResultSet nrRes = null;
     		    		int nr = -1;
@@ -176,12 +189,17 @@ public class NewProduct extends JFrame
     				        {
     				        	nr = nrRes.getInt("counter") + 1;       
     				        }
-    					} catch (SQLException f) 
+    					} catch (SQLException f)  
     					{
     						f.printStackTrace();
     					}
-    					
-    					String sqlInsert = "INSERT into egzemplarze (indeks, indeks_plyty, nosnik, cena, koszt_dostawy, rodzaj, stan) values (" + Integer.toString(nr) + ", " + Integer.toString(ind) + ", " + (String)deviceCombo.getSelectedItem() + ", " + amountField.getText() + " , " + deliveryField.getText() +  (String)kindCombo.getSelectedItem() + ", 0);";
+    		    		int kindComboInt = 0, deviceComboInt = 0;
+    		    		if(((String)kindCombo.getSelectedItem()).equals("album"))
+    		    			kindComboInt = 1;
+    		    		if(((String)deviceCombo.getSelectedItem()).equals("CD"))
+    		    			deviceComboInt = 1;
+    					String sqlInsert = "INSERT into egzemplarze (indeks, indeks_plyty, nosnik, cena, koszt_dostawy, rodzaj, stan) values (" + Integer.toString(nr) + ", " + Integer.toString(ind) + ", " + deviceComboInt + ", " + amountField.getText() + " , " + deliveryField.getText() + "," + kindComboInt + ", 0);";
+    					System.out.println(sqlInsert);
     					try 
     					{
 							int insertInt = stmt.executeUpdate(sqlInsert);
@@ -190,7 +208,9 @@ public class NewProduct extends JFrame
 							e1.printStackTrace();
 						}	
     		
-    		        	String[] newRow = {Integer.toString(nr), (String)deviceCombo.getSelectedItem(), amountField.getText(), deliveryField.getText(), (String)kindCombo.getSelectedItem(), "0" };
+    					
+    					
+    		        	String[] newRow = {Integer.toString(nr), titleToRow, (String)deviceCombo.getSelectedItem(), amountField.getText(), deliveryField.getText(), (String)kindCombo.getSelectedItem(), "0" };
     		        	Products.model.addRow(newRow);
     		        	
     		        	dispose();

@@ -327,7 +327,7 @@ public class Products extends JFrame
         	buttonCart.setVisible(false);
         }
         
-        if(indeksClient == -10)
+        if(indeksClient == -10 || indeksClient == -20)
         {
         	buttonToInvoice.setVisible(true);
         	buttonAdd.setVisible(false);
@@ -353,12 +353,14 @@ public class Products extends JFrame
         	String insertSql;
         	String valueString1;
         	Object valueObject1;
-        	String valueString2;
+        	String valueString2 = "";
         	Object valueObject2;
         	double valueInt3;
         	Object valueObject3;
         	double valueInt4;
         	Object valueObject4;
+        	String valueString6 = ""; // stan
+        	Object valueObject6;
         	
         	double amount = 0;
         	ResultSet invoiceNrRes = null;
@@ -375,43 +377,84 @@ public class Products extends JFrame
 				f.printStackTrace();
 			}
     		
+    		//newEmptyInvoice //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    		try 
+			{
+    			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) "
+    					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 1, 1);");
+			} catch (SQLException f) 
+			{
+				f.printStackTrace();
+			}
+    		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    		
     		for(int i = 0; i<model.getRowCount(); i++)
         	{
         		valueObject1 = table.getValueAt(i, 0);
         		valueString1 = (String)valueObject1;
+        		System.out.println("value1String: " + valueString1);
         		valueObject2 = table.getValueAt(i, 7);
         		valueString2 = (String)valueObject2;
+        		System.out.println("value2String: " + valueString2);
+        		int mnoznikCen;
+        		if(valueString2.equals(""))
+        			mnoznikCen = 0;        			
+        		else
+        			mnoznikCen = Integer.parseInt(valueString2);
+        		System.out.println("MNOZNIK CEN = " + mnoznikCen);
         		valueObject3 = table.getValueAt(i, 3);
         		valueInt3 = Double.parseDouble((String)valueObject3);
         		valueObject4 = table.getValueAt(i, 4);
         		valueInt4 = Double.parseDouble((String)valueObject4);
+        		valueObject6 = table.getValueAt(i, 6);
+        		valueString6 = (String)valueObject6;
         		
-        		ResultSet nrRes = null;
-	    		int nr = -1;
-	    		try 
-				{
-	    			nrRes = stmt.executeQuery("select count(*) as counter from produkty_faktur;");
-			        while(nrRes.next())
-			        {
-			        	nr = nrRes.getInt("counter") + 1;       
-			        }
-				} catch (SQLException f) 
-				{
-					f.printStackTrace();
-				}
-        		
-        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString1 +  ", " + valueString2 + ");";
-        		System.out.println("-----" + insertSql);
-        		try 
+        		if(!valueString2.equals("") && (!(valueString6.equals("0"))) )
         		{
-					stmt.executeUpdate(insertSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
-        		amount = amount + valueInt3 + valueInt4;         		
+	        		ResultSet nrRes = null;
+		    		int nr = -1;
+		    		try 
+					{
+		    			nrRes = stmt.executeQuery("select count(*) as counter from produkty_faktur;");
+				        while(nrRes.next())
+				        {
+				        	nr = nrRes.getInt("counter") + 1;       
+				        }
+					} catch (SQLException f) 
+					{
+						f.printStackTrace();
+					}
+	        		
+	        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString1 +  ", " + valueString2 + ");";
+	        		System.out.println("-----" + insertSql);
+	        		try 
+	        		{
+						stmt.executeUpdate(insertSql);
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+	        		
+	        		String updSql = "";
+	        		if(indeksClient == -10)
+	        			updSql = "update egzemplarze set stan = stan - " + valueString2 + " where indeks = " + valueString1 + ";";
+	        		if(indeksClient == -20)
+	        			updSql = "update egzemplarze set stan = stan + " + valueString2 + " where indeks = " + valueString1 + ";";
+	        		
+	        		try 
+	        		{
+						stmt.executeUpdate(updSql);
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+	        		
+	        		amount = amount + valueInt3*mnoznikCen + valueInt4*mnoznikCen; 
+        		}
         	}
-    	   NewInvoice.amount = amount;  		
+    		NewInvoice.saveButton.setVisible(true);
+    		NewInvoice.amount  = amount;
+    		dispose();
         }
     }
     
@@ -422,12 +465,14 @@ public class Products extends JFrame
         	String insertSql;
         	String valueString1;
         	Object valueObject1;
-        	String valueString2;
+        	String valueString2 = "";
         	Object valueObject2;
         	double valueInt3;
         	Object valueObject3;
         	double valueInt4;
         	Object valueObject4;
+        	String valueString6 = ""; // stan
+        	Object valueObject6;
         	
         	double amount = 0;
         	ResultSet invoiceNrRes = null;
@@ -444,74 +489,111 @@ public class Products extends JFrame
 				f.printStackTrace();
 			}
     		
+    		//newEmptyInvoice //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    		try 
+			{
+    			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) "
+    					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 1, 1);");
+			} catch (SQLException f) 
+			{
+				f.printStackTrace();
+			}
+    		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    		
     		for(int i = 0; i<model.getRowCount(); i++)
         	{
         		valueObject1 = table.getValueAt(i, 0);
         		valueString1 = (String)valueObject1;
         		valueObject2 = table.getValueAt(i, 7);
         		valueString2 = (String)valueObject2;
+        		int mnoznikCen;
+        		if(valueString2.equals(""))
+        			mnoznikCen = 0;        			
+        		else
+        			mnoznikCen = Integer.parseInt(valueString2);
         		valueObject3 = table.getValueAt(i, 3);
         		valueInt3 = Double.parseDouble((String)valueObject3);
         		valueObject4 = table.getValueAt(i, 4);
         		valueInt4 = Double.parseDouble((String)valueObject4);
+        		valueObject6 = table.getValueAt(i, 6);
+        		valueString6 = (String)valueObject6;
         		
-        		ResultSet nrRes = null;
-	    		int nr = -1;
-	    		try 
-				{
-	    			nrRes = stmt.executeQuery("select count(*) as counter from produkty_faktur;");
-			        while(nrRes.next())
-			        {
-			        	nr = nrRes.getInt("counter") + 1;       
-			        }
-				} catch (SQLException f) 
-				{
-					f.printStackTrace();
-				}
+        		if(!valueString2.equals("") && (!(valueString6.equals("0"))))
+        		{
+	        		ResultSet nrRes = null;
+		    		int nr = -1;
+		    		try 
+					{
+		    			nrRes = stmt.executeQuery("select count(*) as counter from produkty_faktur;");
+				        while(nrRes.next())
+				        {
+				        	nr = nrRes.getInt("counter") + 1;       
+				        }
+					} catch (SQLException f) 
+					{
+						f.printStackTrace();
+					}
         		
-        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString1 +  ", " + valueString2 + ");";
-        		try 
-        		{
-					stmt.executeUpdate(insertSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
-        		
-        		String updSql = "update egzemplarze set stan = stan - " + valueString2 + " where indeks = " + valueString1 + ";";
-        		try 
-        		{
-					stmt.executeUpdate(updSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
-        		
-        		amount = amount + valueInt3 + valueInt4;         		
+	        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString1 +  ", " + valueString2 + ");";
+	        		try 
+	        		{
+						stmt.executeUpdate(insertSql);
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+	        		
+	        		String updSql = "update egzemplarze set stan = stan - " + valueString2 + " where indeks = " + valueString1 + ";";
+	        		try 
+	        		{
+						stmt.executeUpdate(updSql);
+					} catch (SQLException e1) 
+	        		{
+						e1.printStackTrace();
+					}
+	        		
+	        		amount = amount + valueInt3*mnoznikCen + valueInt4*mnoznikCen; 
+        		}
         	}
     	   
-    		
-    		ResultSet nrRes = null;
-    		int nr = -1;
-    		try 
-			{
-    			nrRes = stmt.executeQuery("select count(*) as counter from faktury;");
-		        while(nrRes.next())
-		        {
-		        	nr = nrRes.getInt("counter") + 1;       
-		        }
-			} catch (SQLException f) 
-			{
-				f.printStackTrace();
-			}
-    		try 
-			{
-    			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) values (" + Integer.toString(nr) + ", current_date, " + String.valueOf(0.77 * amount) + "," + String.valueOf(amount) + "," + String.valueOf(0.23 * amount) +  ", 1, " + Integer.toString(indeksClient)+ ");");				
-			} catch (SQLException f) 
-			{
-				f.printStackTrace();
-			}
-        	
+    		if(amount > 0)
+    		{
+//    			ResultSet nrRes = null;
+//        		int nr = -1;
+//        		try 
+//    			{
+//        			nrRes = stmt.executeQuery("select count(*) as counter from faktury;");
+//    		        while(nrRes.next())
+//    		        {
+//    		        	nr = nrRes.getInt("counter") + 1;       
+//    		        }
+//    			} catch (SQLException f) 
+//    			{
+//    				f.printStackTrace();
+//    			}
+        		try 
+    			{
+//        			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) values (" + Integer.toString(nr) + ", current_date, " + String.valueOf(0.77 * amount) + "," + String.valueOf(amount) + "," + String.valueOf(0.23 * amount) +  ", 1, " + Integer.toString(indeksClient)+ ");");				
+//        			stmt.executeUpdate("update faktury set (data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) values (current_date, " + String.valueOf(0.77 * amount) + "," + String.valueOf(amount) + "," + String.valueOf(0.23 * amount) +  ", 1, " + Integer.toString(indeksClient)+ ") where indeks = " + Integer.toString(invoiceNr) + ";");	
+        			String s = "update faktury set data_sprzedazy = current_date, wartosc_netto = " + String.valueOf(0.77 * amount) + ", wartosc_brutto = " + String.valueOf(amount) + ", wartosc_vat = " + String.valueOf(0.23 * amount) + ", rodz_dok = 1, id_klienta_dostawcy = " + Integer.toString(indeksClient) + "where indeks = " + Integer.toString(invoiceNr) + ";" ;
+        			System.out.println(s);
+        			stmt.executeUpdate(s);
+
+    			} catch (SQLException f) 
+    			{
+    				f.printStackTrace();
+    			}		
+    		}
+    		else
+    		{
+    			try 
+    			{
+					stmt.executeUpdate("delete from faktury where indeks = " + Integer.toString(invoiceNr) + ";");
+				} catch (SQLException e1) 
+    			{
+					e1.printStackTrace();
+				}
+    		}
         }
     }
     
@@ -530,30 +612,35 @@ public class Products extends JFrame
         		valueString1 = (String)valueObject1;
         		valueObject2 = table.getValueAt(i, 7);
         		valueString2 = (String)valueObject2;
+        		String pieces = (String)model.getValueAt(i, 6);
         		
-        		ResultSet nrRes = null;
-        		int nr = -1;
-        		try 
-    			{
-        			nrRes = stmt.executeQuery("select count(*) as counter from koszyk;");
-    		        while(nrRes.next())
-    		        {
-    		        	nr = nrRes.getInt("counter") + 1;       
-    		        }
-    			} catch (SQLException f) 
-    			{
-    				f.printStackTrace();
-    			}
+        		if(!valueString2.equals("") && !pieces.equals("0") )
+        		{
+	        		ResultSet nrRes = null;
+	        		int nr = -1;
+	        		try 
+	    			{
+	        			nrRes = stmt.executeQuery("select count(*) as counter from koszyk;");
+	    		        while(nrRes.next())
+	    		        {
+	    		        	nr = nrRes.getInt("counter") + 1;       
+	    		        }
+	    			} catch (SQLException f) 
+	    			{
+	    				f.printStackTrace();
+	    			}
         		
-        		insertSql = "INSERT into koszyk (indeks, indeks_egzemplarza, indeks_klienta, sztuki) values (" + Integer.toString(nr) + ", " + valueString1 + ", " + Integer.toString(indeksClient) + ", " + valueString2 + ");";
-        		System.out.println(insertSql);
-        		try 
-        		{
-					stmt.executeUpdate(insertSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
+        			insertSql = "INSERT into koszyk (indeks, indeks_egzemplarza, indeks_klienta, sztuki) values (" + Integer.toString(nr) + ", " + valueString1 + ", " + Integer.toString(indeksClient) + ", " + valueString2 + ");";
+            		System.out.println(insertSql);
+            		try 
+            		{
+    					stmt.executeUpdate(insertSql);
+    				} catch (SQLException e1) 
+            		{
+    					e1.printStackTrace();
+    				}
+        		}
+        		
         	}
         }
     }
@@ -588,15 +675,19 @@ public class Products extends JFrame
     				f.printStackTrace();
     			}
         		
-        		insertSql = "INSERT into zamowienia (indeks, indeks_egzemplarza, data_zlozenia, sztuki) values (" + Integer.toString(nr) + ", " + valueString1 + ", " +  "current_date, " + valueString2 + ");";
-        		System.out.println(insertSql);
-        		try 
+        		if(!valueString2.equals(""))
         		{
-					stmt.executeUpdate(insertSql);
-				} catch (SQLException e1) 
-        		{
-					e1.printStackTrace();
-				}
+        			insertSql = "INSERT into zamowienia (indeks, indeks_egzemplarza, data_zlozenia, sztuki) values (" + Integer.toString(nr) + ", " + valueString1 + ", " +  "current_date, " + valueString2 + ");";
+            		System.out.println(insertSql);
+            		try 
+            		{
+    					stmt.executeUpdate(insertSql);
+    				} catch (SQLException e1) 
+            		{
+    					e1.printStackTrace();
+    				}
+        		}
+        		
         	}
         }
     }
@@ -608,16 +699,23 @@ public class Products extends JFrame
         	String updateSql;
         	String cenaString;
         	Object cenaObject;
+        	String updateSql2;
+        	String cenaString2;
+        	Object cenaObject2;
         	int update;
         	for(int i =0; i<model.getRowCount(); i++)
         	{
         		cenaObject = table.getValueAt(i, 3);
         		cenaString = (String)cenaObject;
+        		cenaObject2 = table.getValueAt(i, 4);
+        		cenaString2 = (String)cenaObject2;
         		updateSql = "update egzemplarze set cena = " + cenaString + " where indeks = "+ Integer.toString(i+1) + ";";
+        		updateSql2 = "update egzemplarze set koszt_dostawy = " + cenaString2 + " where indeks = "+ Integer.toString(i+1) + ";";
         		System.out.println(updateSql);
         		try 
         		{
 					update = stmt.executeUpdate(updateSql);
+					update = stmt.executeUpdate(updateSql2);
 				} catch (SQLException e1) 
         		{
 					e1.printStackTrace();
@@ -626,7 +724,7 @@ public class Products extends JFrame
         	
         	isPriceEditable = false;
         	buttonSave.setVisible(false);
-+        }
+        }
     }
 
     private class ButtonAdd implements ActionListener

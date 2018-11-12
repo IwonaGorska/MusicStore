@@ -119,7 +119,7 @@ private JTextField nr_telField;
 					f.printStackTrace();
 				}
 							
-				String sqlInsert = "INSERT into dostawcy (indeks, nazwa, nip, nr_telefonu) values (" + Integer.toString(nr) + ", " + nameField.getText() + ", " + nipField.getText() + ", " + nr_telField.getText() + ");";
+				String sqlInsert = "INSERT into dostawcy (indeks, nazwa, nip, nr_telefonu) values (" + Integer.toString(nr) + ", '" + nameField.getText() + "', '" + nipField.getText() + "', '" + nr_telField.getText() + "');";
 				try 
 				{
 					int insertInt = stmt.executeUpdate(sqlInsert);
@@ -129,7 +129,7 @@ private JTextField nr_telField;
 				}				
 
 	        	String[] newRow = {Integer.toString(nr), nameField.getText(), nipField.getText(), nr_telField.getText()};
-	        	Products.model.addRow(newRow);
+	        	Delivers.model.addRow(newRow);
 	        	
 	        	dispose();
 			}
