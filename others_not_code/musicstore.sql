@@ -35,6 +35,8 @@ select indeks from plyty where lower(tytul) like '%black%';
 
 update faktury set (data_sprzedazy = current_date, wartosc_netto = String.valueOf(0.77 * amount), wartosc_brutto = String.valueOf(amount), wartosc_vat = String.valueOf(0.23 * amount), rodz_dok = 1, id_klienta_dostawcy = Integer.toString(indeksClient) where indeks = " + Integer.toString(invoiceNr)
 
+alter table koszyk add foreign key (indeks_egzemplarza) references egzemplarze (indeks);
+
 
 
 

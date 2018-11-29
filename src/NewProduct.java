@@ -135,15 +135,15 @@ public class NewProduct extends JFrame
     { 
         public void actionPerformed(ActionEvent e)
         {
-            if(amountField.getText().isEmpty() == true)        
-    		{
-    			JOptionPane.showMessageDialog(panel, "Uzupe³nij wszystkie wymagane pola!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+            if(amountField.getText().isEmpty() == true || Double.parseDouble(amountField.getText() ) <=0)        
+            {
+    			JOptionPane.showMessageDialog(panel, "B³êdne dane!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
     		}    
     		else
     		{
-    			if(deliveryField.getText().isEmpty() == true)        
+    			if(deliveryField.getText().isEmpty() == true || Double.parseDouble(deliveryField.getText() ) <=0)          
         		{
-        			JOptionPane.showMessageDialog(panel, "Uzupe³nij wszystkie wymagane pola!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        			JOptionPane.showMessageDialog(panel, "B³êdne dane!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
         		}
     			else
     			{

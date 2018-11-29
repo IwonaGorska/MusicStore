@@ -1,0 +1,42 @@
+create or replace function cenaEgzMin() returns trigger as $$ begin if new.cena<=0 then set new.cena=1; end if; return new; end; $$ language plpgsql;
+
+create trigger cenaEgzMin_bi before insert on egzemplarze for each row execute procedure cenaEgzMin();
+DOBRA WERSJA:
+create or replace function cenaEgzMin() returns trigger as $$ begin if new.cena<=0 then  new.cena=1; end if; return new; end; $$ language plpgsql;
+-----------------------------------------------------------------------------------------------------
+create or replace function koDoEgzMin() returns trigger as $$ begin if new.koszt_dostawy<=0 then  new.koszt_dostawy=1; end if; return new; end; $$ language plpgsql;
+
+create trigger koDoEgzMin_bi before insert on egzemplarze for each row execute procedure koDoEgzMin();
+-------------------------------------------------------------------------------------------------------------
+create or replace function dlPlyty() returns trigger as $$ begin if new.dlugosc_w_minutach<=0 then  new.dlugosc_w_minutach=1; end if; return new; end; $$ language plpgsql;
+
+create trigger dlPlyty_bi before insert on plyty for each row execute procedure dlPlyty();
+-------------------------------------------------------------------------------------------------------------
+create or replace function email() returns trigger as $$ begin if new.email not like '%@%' then return null; end if; return new; end; $$ language plpgsql;
+
+
+create trigger email_bi before insert on klienci for each row execute procedure email();
+-----------------------------------------------------------------------------------------------------------------------------
+create or replace function nip() returns trigger as $$ begin if char_length(new.nip) != 9 then return null; end if; return new; end; $$ language plpgsql;
+
+
+create trigger nip_bi before insert on dostawcy for each row execute procedure nip();
+--------------------------------------------------------------------------------------------------------------------------------------
+create or replace function nrT() returns trigger as $$ begin if char_length(new.nr_telefonu) != 9 then return null; end if; return new; end; $$ language plpgsql;
+
+
+create trigger nrT_bi before insert on dostawcy for each row execute procedure nrT();
+--------------------------------------------------------------------------------------------------------------------------------------
+create or replace function correctNip() returns trigger as $$ begin if substr(new.nip, 1, 1) ~'[0-9]' and substr(new.nip, 2, 1) ~'[0-9] ' and substr(new.nip, 3, 1) ~' [0-9] ' and substr(new.nip, 4, 1) ~'[0-9]'  and substr(new.nip, 5, 1) ~' [0-9]'  and substr(new.nip, 6, 1) ~' [0-9] ' and substr(new.nip, 7, 1) ~' [0-9] '  and substr(new.nip, 8, 1) ~ '[0-9] ' and substr(new.nip, 9, 1) ~ '[0-9]'  then return new; else return null; end if; return new; end; $$ language plpgsql;
+
+create trigger correctNip_bi before insert on dostawcy for each row execute procedure correctNip();
+
+
+
+
+
+
+
+
+
+

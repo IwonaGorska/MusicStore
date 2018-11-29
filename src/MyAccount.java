@@ -204,25 +204,41 @@ public class MyAccount extends JFrame
             String surnameString = surname.getText();
             String mailString = mail.getText();
             
-            if(  (login.getText().isEmpty() == true) ||  (password.getText().isEmpty() == true) ||  (passwordRepeat.getText().isEmpty() == true) 
+            boolean isAt = false;
+            for(int i = 0; i<mailString.length(); i++)
+            {
+            	if(mailString.charAt(i) == '@')
+            		isAt = true;
+            }
+            
+            if(  (isAt == false || login.getText().isEmpty() == true) ||  (password.getText().isEmpty() == true) ||  (passwordRepeat.getText().isEmpty() == true) 
             ||  (name.getText().isEmpty() == true)	||  (surname.getText().isEmpty() == true) ||  (mail.getText().isEmpty() == true)	)
     		{
-    			JOptionPane.showMessageDialog(panel, "Uzupe³nij wszystkie wymagane pola!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+    			JOptionPane.showMessageDialog(panel, "Zostawiles puste pola lub adres email jest bledny!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
     		}
             
-    		else
-    		{
-				String sqlUpdate = "UPDATE klienci SET login='" + userString + "', haslo='" + passString + "', imie='" + nameString + "', nazwisko='" + surnameString + "', email='" + mailString + "' WHERE indeks=" + Integer.toString(indeks) + ";";
-				try 
-				{
-					stmt.executeUpdate(sqlUpdate);
-					System.out.println(sqlUpdate);
-				} catch (SQLException e1) 
-				{
-					e1.printStackTrace();
-				}
-				dispose();
-    		}  
+            else
+            {
+            	if(!password.getText().equals(passwordRepeat.getText()))
+            	{
+            		JOptionPane.showMessageDialog(panel, "Powtorzone haslo rozni sie od wpisanego jako pierwsze!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+            	}
+            	else
+        		{
+    				String sqlUpdate = "UPDATE klienci SET login='" + userString + "', haslo='" + passString + "', imie='" + nameString + "', nazwisko='" + surnameString + "', email='" + mailString + "' WHERE indeks=" + Integer.toString(indeks) + ";";
+    				try 
+    				{
+    					stmt.executeUpdate(sqlUpdate);
+    					System.out.println(sqlUpdate);
+    				} catch (SQLException e1) 
+    				{
+    					e1.printStackTrace();
+    				}
+    				dispose();
+        		} 
+            }
+            
+    		 
         }
     }
  

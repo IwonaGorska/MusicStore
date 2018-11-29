@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -23,6 +24,8 @@ public class NewInvoice extends JFrame
    static JButton  saveButton;
    JButton  addButton;
    static double amount;
+   static boolean isNew;
+   static boolean canAddNew;
 	
    public NewInvoice() 
    {
@@ -37,6 +40,8 @@ public class NewInvoice extends JFrame
  
     public void initComponents()
     {
+    	canAddNew = true;
+    	isNew = false;
 		  try 
 		  {
 			DriverManager.registerDriver(new org.postgresql.Driver());
@@ -177,50 +182,68 @@ public class NewInvoice extends JFrame
 			{
 				f.printStackTrace();
 			}
+    		
+    		
 
     		//JESLI OKNO JEST ZAMYKANE BEZ ZAPISU, TO TRZEBA COFNAC WSZYSTKIE ZMIANY NA STANACH, KTORE WPROWADZILO OKNO DODAWANIA PRODUKTU NA FAKTURE
-    		ResultSet backUpdateRes = null;  		
-    		try 
-			{
-    			backUpdateRes = stmt.executeQuery("select * from produkty_faktur where indeks_faktury = " + Integer.toString(invoiceNr) + ";");
-		        while(backUpdateRes.next())
-		        {
-		        	int productId = backUpdateRes.getInt("indeks_egzemplarza"); 
-		        	int pieces = backUpdateRes.getInt("sztuki");
-		        	
-		        	//cofam zmiany na stanie
-		        	String updSql = "";
-		        	if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))		        	
-		        		updSql = "update egzemplarze set stan = stan + " + Integer.toString(pieces) + " where indeks = " + Integer.toString(productId) + ";";
-		        	else
-	        			updSql = "update egzemplarze set stan = stan - " + Integer.toString(pieces) + " where indeks = " + Integer.toString(productId) + ";";
-	        		
-		        	try 
-	        		{
-						stmt.executeUpdate(updSql);
-					} catch (SQLException e1) 
-	        		{
-						e1.printStackTrace();
-					}
-		        	
-		        }
-			} catch (SQLException f) 
-			{
-				f.printStackTrace();
-			}
     		
     		
-        	// I TRZEBA USUNAC DODANE W OKNIE DODAWANIA PRODUKTU NA FAKTURE WIERSZE Z TABELI PRODUKTY_FAKTUR I FAKTURE TEZ
-        	String sqlDelete1 = "DELETE from produkty_faktur where indeks_faktury = " + Integer.toString(invoiceNr) + ";";
-        	String sqlDelete2 = "DELETE from faktury where indeks = " + Integer.toString(invoiceNr) + ";";
-				try 
+    		if(isNew ) // usuwam wszystko zwiazane z invoiceNr tylko wtedy gdy powstal  faktycznie, bo jest tez przypadek, kiedy user mogl
+    			// nacisnac od razu zamknij w oknie z produktami i zamknij w newInvoice i bez tego ifa zniknelaby poprzednia faktura, ktora byla kiedys tam
+    			//prawidlowo dodana
+    		{
+	    		ResultSet backUpdateRes = null;  		
+	    		try 
+				{
+	    			backUpdateRes = stmt.executeQuery("select * from produkty_faktur where indeks_faktury = " + Integer.toString(invoiceNr) + ";");
+			        while(backUpdateRes.next())
+			        {
+			        	int productId = backUpdateRes.getInt("indeks_egzemplarza"); 
+			        	int pieces = backUpdateRes.getInt("sztuki");
+			        	
+			        	//cofam zmiany na stanie
+			        	String updSql = "";
+			        	if(((String)type.getSelectedItem()).equals("Faktura wychodz¹ca (0)"))		        	
+			        		updSql = "update egzemplarze set stan = stan + " + Integer.toString(pieces) + " where indeks = " + Integer.toString(productId) + ";";
+			        	else
+		        			updSql = "update egzemplarze set stan = stan - " + Integer.toString(pieces) + " where indeks = " + Integer.toString(productId) + ";";
+		        		
+			        	try 
+		        		{
+							stmt.executeUpdate(updSql);
+						} catch (SQLException e1) 
+		        		{
+							e1.printStackTrace();
+						}
+			        	
+			        }
+				} catch (SQLException f) 
+				{
+					f.printStackTrace();
+				}
+	    		
+	    		
+	        	// I TRZEBA USUNAC DODANE W OKNIE DODAWANIA PRODUKTU NA FAKTURE WIERSZE Z TABELI PRODUKTY_FAKTUR I FAKTURE TEZ
+	        	String sqlDelete1 = "DELETE from produkty_faktur where indeks_faktury = " + Integer.toString(invoiceNr) + ";";
+	        	try 
 				{
 					stmt.executeUpdate(sqlDelete1);
-					stmt.executeUpdate(sqlDelete2);
+					
 				} catch (SQLException e1) 
 				{
 					e1.printStackTrace();
-				}	
+				}
+	        	String sqlDelete2 = "DELETE from faktury where indeks = " + Integer.toString(invoiceNr) + ";";
+					try 
+					{
+						
+						stmt.executeUpdate(sqlDelete2);
+					} catch (SQLException e1) 
+					{
+						e1.printStackTrace();
+					}
+			
+    		}//
         	
             dispose();
         }
@@ -251,7 +274,7 @@ public class NewInvoice extends JFrame
             	else
             		contrahentType = -20;
             	Products P = new Products(sql, true, contrahentType);
-            	addButton.setVisible(false); // zeby nie wciskali juz wiecej, bo znow owstanie "pusta" faktura
+            	addButton.setVisible(false); // zeby nie wciskali juz wiecej, bo znow powstanie "pusta" faktura
             	type.setEnabled(false);
             	ID_klienta.setEnabled(false);
             	ID_dostawcy.setEnabled(false);
@@ -268,7 +291,8 @@ public class NewInvoice extends JFrame
         public void actionPerformed(ActionEvent e)
         {
         	System.out.println("AMOUNT = " + amount);
-        	if(amount > 0)
+//        	if(amount > 0)
+        	if(canAddNew)
         	{
 	            short typeShort;
 	            int IDint = -1;//zeby kompilator sie nie czepial, a i tak jesli nie ma kntrahentow to nie zostanie wykorzystane nigdzie

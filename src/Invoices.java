@@ -190,12 +190,12 @@ public class Invoices extends JFrame
 	            
 				Format formatter = new SimpleDateFormat("yyyy-MM-dd");
 				String stringDate = formatter.format(data_sprzedazy);
-				int w_n = Integer.valueOf(wartosc_netto.intValue());
-				int w_b = Integer.valueOf(wartosc_brutto.intValue());
-				int w_v = Integer.valueOf(wartosc_vat.intValue());
+				double w_n = wartosc_netto.doubleValue();
+				double w_b = wartosc_brutto.doubleValue();
+				double w_v = wartosc_vat.doubleValue();
 				int r_d = (int)rodz_dok;
 
-	            String[] newRow = { Integer.toString(indeks), stringDate, Integer.toString(w_n), Integer.toString(w_b), Integer.toString(w_v), Integer.toString(r_d), Integer.toString(id_klienta), "Zobacz produkty"};
+	            String[] newRow = { Integer.toString(indeks), stringDate, Double.toString(w_n), Double.toString(w_b), Double.toString(w_v), Integer.toString(r_d), Integer.toString(id_klienta), "Zobacz produkty"};
 	            model.addRow(newRow);
 	        }
 		} catch (SQLException e) 

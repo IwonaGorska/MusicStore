@@ -214,8 +214,8 @@ public class MyCart extends JFrame
 		        	BigDecimal koszt_dostawy = res2.getBigDecimal("koszt_dostawy");
 		        	short rodzaj = res2.getShort("rodzaj");
 		        	int stan = res2.getInt("stan");
-					int c = Integer.valueOf(cena.intValue());
-					int k_d = Integer.valueOf(koszt_dostawy.intValue());
+					double c = cena.doubleValue();
+					double k_d = koszt_dostawy.doubleValue();
 					String n = "", r = "";
 					if(nosnik == 0)
 						n = "winyl";
@@ -230,8 +230,8 @@ public class MyCart extends JFrame
 					table.setValueAt(n, i, 3);
 					table.setValueAt(r, i, 4);
 					table.setValueAt(Integer.toString(stan), i, 5);
-					table.setValueAt(Integer.toString(c), i, 6);
-					table.setValueAt(Integer.toString(k_d), i, 7);		                       
+					table.setValueAt(Double.toString(c), i, 6);
+					table.setValueAt(Double.toString(k_d), i, 7);		                       
 		        }
 			} catch (SQLException e) 
 			{
@@ -240,6 +240,22 @@ public class MyCart extends JFrame
 		}
 		
 		//UZUPELNIAM KOLUMNE 'PLYTA' TABELI O INFORMACJE Z RELACJI PLYTY 
+//		ResultSet resBig = null;
+//		int indeks_plyty;
+//		try 
+//		{
+//			resBig = stmt.executeQuery("select indeks_plyty from egzemplarze where indeks = " + idE + ";");
+//	        while(resBig.next())
+//	        {
+//	        	indeks_plyty = resBig.getInt("indeks_plyty");
+//	        	            
+//	        }
+//		} catch (SQLException e) 
+//		{
+//			e.printStackTrace();
+//		}
+		
+		
 		String titleAlbum = "";
 		ResultSet resTitle = null;
 		String id2 = "";
@@ -248,7 +264,8 @@ public class MyCart extends JFrame
 			id2 = (String)table.getValueAt(i, 1);
 	        try 
 			{
-	        	resTitle = stmt.executeQuery("select tytul from plyty where indeks = " + id2 + ";");
+	        	resTitle = stmt.executeQuery("select tytul from plyty where indeks = (select indeks_plyty from egzemplarze where indeks = " + id2 + ");");
+//	        	resTitle = stmt.executeQuery("select tytul from plyty where indeks = " + id2 + ";");
 		        while(resTitle.next())
 		        {
 		        	titleAlbum = resTitle.getString("tytul");       
@@ -306,7 +323,14 @@ public class MyCart extends JFrame
         		valueString1 = (String)valueObject1;
         		valueObject2 = table.getValueAt(i, 9);
         		valueString2 = (String)valueObject2;
-        		if(valueString2.equals(""));
+        		
+        		String pieces = (String)model.getValueAt(i, 8);
+        		double piecesDouble = Double.parseDouble(pieces); // chyba int mial byc ale w dupie
+        		double wantedDouble = 0;
+        		if(!valueString2.equals(""))
+        			wantedDouble = Double.parseDouble(valueString2);
+        		
+        		if(valueString2.equals("") || piecesDouble < wantedDouble || wantedDouble <= 0);
         		else
         		{
         			String updSql = "update koszyk set sztuki = sztuki - " + valueString2 + " where indeks = " + valueString1 + ";";
@@ -403,7 +427,14 @@ public class MyCart extends JFrame
         		valueObject5 = table.getValueAt(i, 1);//indeks egzemplarza
         		valueString5 = (String)valueObject5;
         		
+        		String pieces = (String)model.getValueAt(i, 8);
+        		double piecesDouble = Double.parseDouble(pieces); // chyba int mial byc ale w dupie
+        		double wantedDouble = 0;
         		if(!valueString2.equals(""))
+        			wantedDouble = Double.parseDouble(valueString2);
+        		
+        		if(valueString2.equals("") || piecesDouble < wantedDouble || wantedDouble <= 0);
+        		else
         		{	
 	        		ResultSet nrRes = null;
 		    		int nr = -1;
@@ -468,7 +499,7 @@ public class MyCart extends JFrame
     		{
         		try 
     			{
-        			String s = "update faktury set data_sprzedazy = current_date, wartosc_netto = " + String.valueOf(0.77 * amount) + ", wartosc_brutto = " + String.valueOf(amount) + ", wartosc_vat = " + String.valueOf(0.23 * amount) + ", rodz_dok = 1, id_klienta_dostawcy = " + Integer.toString(indeksClient) + "where indeks = " + Integer.toString(invoiceNr) + ";" ;
+        			String s = "update faktury set data_sprzedazy = current_date, wartosc_netto = " + String.valueOf(0.77 * amount) + ", wartosc_brutto = " + String.valueOf(amount) + ", wartosc_vat = " + String.valueOf(0.23 * amount) + ", rodz_dok = 0, id_klienta_dostawcy = " + Integer.toString(indeksClient) + "where indeks = " + Integer.toString(invoiceNr) + ";" ;
         			System.out.println(s);
         			stmt.executeUpdate(s);
 

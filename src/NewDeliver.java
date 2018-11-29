@@ -98,10 +98,32 @@ private JTextField nr_telField;
     { 
         public void actionPerformed(ActionEvent e)
         {
+        	String nipString = nipField.getText();
+        	String telString = nr_telField.getText();
+        	boolean isTelAndNipOk = true;
+        	if(nipString.length() != 10)// chyba juz wtedy nipField.getText().isEmpty() == true nie trzeba sprawdzac
+        		isTelAndNipOk = false;
+        	if(telString.length() != 9)//chyba juz wtedy nr_telField.getText().isEmpty() == true nie trzeba sprawdzac
+        		isTelAndNipOk = false;
+        	for(int i = 0; i<nipString.length(); i++)
+            {
+            	if(nipString.charAt(i) != '0' && nipString.charAt(i) != '1' && nipString.charAt(i) != '2' && nipString.charAt(i) != '3' 
+            			&& nipString.charAt(i) != '4' && nipString.charAt(i) != '5' && nipString.charAt(i) != '6'
+            			&& nipString.charAt(i) != '7' && nipString.charAt(i) != '8' && nipString.charAt(i) != '9' )
+            		isTelAndNipOk = false;
+            }
+        	for(int i = 0; i<telString.length(); i++)
+            {
+            	if(telString.charAt(i) != '0' && telString.charAt(i) != '1' && telString.charAt(i) != '2' && telString.charAt(i) != '3' 
+            			&& telString.charAt(i) != '4' && telString.charAt(i) != '5' && telString.charAt(i) != '6'
+            			&& telString.charAt(i) != '7' && telString.charAt(i) != '8' && telString.charAt(i) != '9' )
+            		isTelAndNipOk = false;
+            }
+        	
 
-            if(nameField.getText().isEmpty() == true || nipField.getText().isEmpty() == true || nr_telField.getText().isEmpty() == true)        
+            if(nameField.getText().isEmpty() == true || !isTelAndNipOk)        
     		{
-    			JOptionPane.showMessageDialog(panel, "Uzupe³nij wszystkie wymagane pola!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+    			JOptionPane.showMessageDialog(panel, "Niepoprawne dane!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
     		}    
 			else
 			{
