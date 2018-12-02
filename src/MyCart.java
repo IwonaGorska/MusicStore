@@ -21,6 +21,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -327,30 +328,45 @@ public class MyCart extends JFrame
         		String pieces = (String)model.getValueAt(i, 8);
         		double piecesDouble = Double.parseDouble(pieces); // chyba int mial byc ale w dupie
         		double wantedDouble = 0;
-        		if(!valueString2.equals(""))
-        			wantedDouble = Double.parseDouble(valueString2);
+//        		if(!valueString2.equals(""))
+//        			wantedDouble = Double.parseDouble(valueString2);
         		
-        		if(valueString2.equals("") || piecesDouble < wantedDouble || wantedDouble <= 0);
-        		else
+        		boolean suspicious = false;
+        		for(int v = 0; v<valueString2.length(); v++)
         		{
-        			String updSql = "update koszyk set sztuki = sztuki - " + valueString2 + " where indeks = " + valueString1 + ";";
-            		System.out.println(updSql);
-            		try 
-            		{
-    					stmt.executeUpdate(updSql);
-    				} catch (SQLException e1) 
-            		{
-    					e1.printStackTrace();
-    				}
-            		String deleteSql = "delete from koszyk where sztuki = 0;";
-            		try 
-            		{
-    					stmt.executeUpdate(deleteSql);
-    				} catch (SQLException e1) 
-            		{
-    					e1.printStackTrace();
-    				}
+        			if(valueString2.charAt(v) < 48 ||  valueString2.charAt(v) > 57) // CZYLI WG ASCII NIE JEST CYFRA
+        				suspicious = true;
         		}
+        		
+        		if(suspicious == true)
+        			JOptionPane.showMessageDialog(mainPanel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        		
+        		if(suspicious == false && !valueString2.equals(""))
+        		{
+        			wantedDouble = Double.parseDouble(valueString2);
+        			if(piecesDouble < wantedDouble || wantedDouble <= 0 );
+	        		else
+	        		{
+	        			
+	        			String updSql = "update koszyk set sztuki = sztuki - " + valueString2 + " where indeks = " + valueString1 + ";";
+	            		System.out.println(updSql);
+	            		try 
+	            		{
+	    					stmt.executeUpdate(updSql);
+	    				} catch (SQLException e1) 
+	            		{
+	    					e1.printStackTrace();
+	    				}
+	            		String deleteSql = "delete from koszyk where sztuki = 0;";
+	            		try 
+	            		{
+	    					stmt.executeUpdate(deleteSql);
+	    				} catch (SQLException e1) 
+	            		{
+	    					e1.printStackTrace();
+	    				}
+	        		}
+        	}
         		
         		dispose();// zamiast tego usuniecie wiersza w tabeli pownno sie zrobic
         	}
@@ -416,10 +432,10 @@ public class MyCart extends JFrame
         		valueObject2 = table.getValueAt(i, 9);//wartosc zadana
         		valueString2 = (String)valueObject2;
         		int mnoznikCen;
-        		if(valueString2.equals(""))
-        			mnoznikCen = 0;        			
-        		else
-        			mnoznikCen = Integer.parseInt(valueString2);
+//        		if(valueString2.equals(""))
+//        			mnoznikCen = 0;        			
+//        		else
+//        			mnoznikCen = Integer.parseInt(valueString2);
         		valueObject3 = table.getValueAt(i, 6);//jednostkowa cena
         		valueDouble3 = Double.parseDouble((String)valueObject3); 
         		valueObject4 = table.getValueAt(i, 7);//koszt dostawy jednostkowy
@@ -430,12 +446,46 @@ public class MyCart extends JFrame
         		String pieces = (String)model.getValueAt(i, 8);
         		double piecesDouble = Double.parseDouble(pieces); // chyba int mial byc ale w dupie
         		double wantedDouble = 0;
-        		if(!valueString2.equals(""))
-        			wantedDouble = Double.parseDouble(valueString2);
+//        		if(!valueString2.equals(""))
+//        			wantedDouble = Double.parseDouble(valueString2);
         		
-        		if(valueString2.equals("") || piecesDouble < wantedDouble || wantedDouble <= 0);
+        		boolean suspicious = false;
+        		for(int v = 0; v<valueString2.length(); v++)
+        		{
+        			if(valueString2.charAt(v) < 48 ||  valueString2.charAt(v) > 57) // CZYLI WG ASCII NIE JEST CYFRA
+        				suspicious = true;
+        		}
+        		
+        		if(suspicious == true)
+        		{
+            		JOptionPane.showMessageDialog(mainPanel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        			amount = 0;//ZEBY W PRZYPADKU, GDY ODRZUCILO Z POWODU SUSPICIOUS, AMOUNT ZEROWE SPOWODOWALO ZNISZCZENIE PUSTEJ FAKTURY
+        		}
+
+        		
+        		if(valueString2.equals("") ) 
+        			amount = 0;
+        		else
+        		{
+        			
+    			wantedDouble = Double.parseDouble(valueString2);
+    			if(piecesDouble < wantedDouble || wantedDouble <= 0 || suspicious == true)
+    			{
+    				System.out.println("suspicious = " + suspicious);
+            		System.out.println("piecesDouble = " + piecesDouble);
+            		System.out.println("wantedDouble = " + wantedDouble);
+    			}
+ 
         		else
         		{	
+//        			if(valueString2.equals(""))
+//            			mnoznikCen = 0;        			
+//            		else
+            			mnoznikCen = Integer.parseInt(valueString2);
+            			System.out.println("mnoznik= " + mnoznikCen);
+            			
+        			
+        			
 	        		ResultSet nrRes = null;
 		    		int nr = -1;
 		    		try 
@@ -492,9 +542,11 @@ public class MyCart extends JFrame
 	        		{
 						e1.printStackTrace();
 					}
-        		}  		
+        		}  
+        	}
         	}
    		
+    		System.out.println("amount= " + amount);
     		if(amount > 0)
     		{
         		try 

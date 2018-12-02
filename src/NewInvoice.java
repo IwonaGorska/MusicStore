@@ -59,8 +59,10 @@ public class NewInvoice extends JFrame
           addButton.addActionListener(new ButtonAdd());
           panel.add(addButton);
           JLabel  typeLabel = new JLabel("Rodzaj dokumentu: ");
-          JLabel  IDKLabel= new JLabel("ID Klienta: ");
-          JLabel  IDDLabel= new JLabel("ID Dostawcy: ");
+//          JLabel  IDKLabel= new JLabel("ID Klienta: ");
+//          JLabel  IDDLabel= new JLabel("ID Dostawcy: ");
+          JLabel  IDKLabel= new JLabel("Login Klienta: ");
+          JLabel  IDDLabel= new JLabel("Nazwa Dostawcy: ");
           closeButton.setSize(90, 30); 
            
           addButton.setLocation(getWidth()-400,getHeight()-90);
@@ -99,11 +101,14 @@ public class NewInvoice extends JFrame
 				int k = 0;
 				while(rs1.next())
  			 	{
-					int indeks = rs1.getInt(1);
-					System.out.println("indeks do combobox klienta " + indeks);
-					String indeksString = Integer.toString(indeks);
-					System.out.println("indeksString do combobox klienta " + indeksString);
-					ID_klienta.addItem(Integer.toString(indeks));
+//					int indeks = rs1.getInt(1);
+//					System.out.println("indeks do combobox klienta " + indeks);
+//					String indeksString = Integer.toString(indeks);
+//					System.out.println("indeksString do combobox klienta " + indeksString);
+//					ID_klienta.addItem(Integer.toString(indeks));
+					String login = rs1.getString(2);
+					ID_klienta.addItem(login);
+					
 					k++;
  			 	}
 				if(k == 0)
@@ -119,12 +124,15 @@ public class NewInvoice extends JFrame
 				int k = 0;
 				while(rs1.next())
 			 	{
-					int indeks = rs1.getInt(1);
-					System.out.println("indeks do combobox dostawcy " + indeks);
-					String indeksString = Integer.toString(indeks);
-					System.out.println("indeksString do combobox dostawcy " + indeksString);
-					ID_dostawcy.addItem(Integer.toString(indeks));
-					System.out.println("weszlam do srodka combo dostawcy dodaje elementy");
+//					int indeks = rs1.getInt(1);
+//					System.out.println("indeks do combobox dostawcy " + indeks);
+//					String indeksString = Integer.toString(indeks);
+//					System.out.println("indeksString do combobox dostawcy " + indeksString);
+//					ID_dostawcy.addItem(Integer.toString(indeks));
+//					System.out.println("weszlam do srodka combo dostawcy dodaje elementy");
+					String nazwa = rs1.getString(2);
+					ID_dostawcy.addItem(nazwa);
+					
 					k++;
 			 	}
 				if(k == 0)
@@ -315,13 +323,44 @@ public class NewInvoice extends JFrame
 	            {
 	            	typeShort = 1;
 	            	if(!((String)ID_dostawcy.getSelectedItem()).equals("Brak dostawców w bazie"))
-	            		IDint = Integer.parseInt((String)ID_dostawcy.getSelectedItem());
+	            	{
+	            		ResultSet idDeliverRes = null;
+	    	    		try 
+	    				{
+	    	    			idDeliverRes = stmt.executeQuery("select indeks from dostawcy where nazwa = '" + (String)ID_dostawcy.getSelectedItem() + "';");
+	    			        while(idDeliverRes.next())
+	    			        {
+	    			        	IDint = idDeliverRes.getInt("indeks");       
+	    			        }
+	    				} catch (SQLException f) 
+	    				{
+	    					f.printStackTrace();
+	    				}
+	    	    		
+//	    	    		IDint = Integer.parseInt((String)ID_dostawcy.getSelectedItem());
+	            	}
+	            		
 	            }	
 	            else
 	            {
 	            	typeShort = 0;
 	            	if(!((String)ID_klienta.getSelectedItem()).equals("Brak klientów w bazie"))
-	            		IDint = Integer.parseInt((String)ID_klienta.getSelectedItem());
+	            	{
+	            		ResultSet idClientRes = null;
+	    	    		try 
+	    				{
+	    	    			idClientRes = stmt.executeQuery("select indeks from klienci where login = '" + (String)ID_klienta.getSelectedItem() + "';");
+	    			        while(idClientRes.next())
+	    			        {
+	    			        	IDint = idClientRes.getInt("indeks");       
+	    			        }
+	    				} catch (SQLException f) 
+	    				{
+	    					f.printStackTrace();
+	    				}
+//	            		IDint = Integer.parseInt((String)ID_klienta.getSelectedItem());
+	            	}
+	            		
 	            }
             	
     			double vatD = 0.23 * amount;	

@@ -8,6 +8,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 
@@ -103,11 +104,26 @@ public class ClientPanel
             		System.out.println("some action");
             		String t = text.getText();
             		t = t.toLowerCase();
-            		String sql;
-            		sql = "SELECT * from egzemplarze where indeks_plyty IN (select indeks from plyty where lower(tytul) like '%" + t + "%' or lower(wykonawca) like '%" + t + "%') order by indeks;";
-            		System.out.println(sql);
-            		Products P = new Products(sql, false, indeks);
-    				P.setVisible(true);
+            		boolean suspicious = false; // ZMIENNA KTORA POZWALA NA SPRAWDZENIE, CZY Z FRAZY PODANEJ PRZEZ UZYTKOWNIKA MOZNA ZROBIC SQL INJECTION
+            		for(int i = 0; i<t.length(); i++)
+            		{
+            			if((t.charAt(i) < 48 && t.charAt(i) > 32) || (t.charAt(i) < 65 && t.charAt(i) > 57))
+            				suspicious = true;
+            		}
+            		
+            		if(suspicious == false)
+            		{
+            			String sql;
+                		sql = "SELECT * from egzemplarze where indeks_plyty IN (select indeks from plyty where lower(tytul) like '%" + t + "%' or lower(wykonawca) like '%" + t + "%') order by indeks;";
+                		System.out.println(sql);
+                		Products P = new Products(sql, false, indeks);
+        				P.setVisible(true);
+            		}
+            		else
+            		{
+            			JOptionPane.showMessageDialog(panel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+            		}
+            		
             	}
             }
         };

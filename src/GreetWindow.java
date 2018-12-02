@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -79,15 +80,15 @@ public class GreetWindow extends JFrame
           this.getContentPane().add(panel);
           closeButton.addActionListener(new ButtonZamknij());
           okButton.addActionListener(new ButtonOK());
-          JButton  registrationButton = new JButton ("Register");
+          JButton  registrationButton = new JButton ("Zarejestruj");
           registrationButton.setLocation(getWidth()-190,getHeight()-65);
-          registrationButton.setSize(90, 20);
+          registrationButton.setSize(160, 20);
           registrationButton.addActionListener(new ActionListener()
                 {
                 	@Override
                 	public void actionPerformed(ActionEvent e) 
                 	{
-                		Registration R = new Registration();
+                		Registration R = new Registration(); 
                 		R.setVisible(true);	
                 	}
                 	});
@@ -122,13 +123,28 @@ public class GreetWindow extends JFrame
     			// zweryfikuj dane w bazie, sprawdz czy zaznaczone, zepracownik i czy to jest pracownik, przejdz do kolejnego panelu
     			if(worker.isSelected())
     			{
+    				/*
+    				    PreparedStatement stmt = connection.prepareStatement("SELECT * FROM users WHERE userid=? AND password=?");
+						stmt.setString(1, userid);
+						stmt.setString(2, password);
+						ResultSet rs = stmt.executeQuery();
+    				 */
+    				
+    				
+    				
     				//SPRAWDZAM CZY W BAZIE JEST ZAREJESTROWANY TAKI  PRACOWNIK
     				int counter = 0;
     				ResultSet rs = null;
         			try 
         			{
-						rs = stmt.executeQuery("SELECT * from pracownicy where login like '" + user + "' and haslo like '" + pass + "';");
-						while(rs.next())
+        				PreparedStatement stmtP = conn.prepareStatement("SELECT * from pracownicy where login like ? and haslo like ?;");
+//						rs = stmt.executeQuery("SELECT * from pracownicy where login like '" + user + "' and haslo like '" + pass + "';");
+        				stmtP.setString(1, user);
+						stmtP.setString(2, pass);
+						rs = stmtP.executeQuery();
+						
+        				
+        				while(rs.next())
            			 	{
            			 		counter++;
            			 	}
@@ -159,7 +175,14 @@ public class GreetWindow extends JFrame
                 	ResultSet rsIndeks = null;
         			try 
         			{
-        				rs = stmt.executeQuery("SELECT * from klienci where login like '" + user + "' and haslo like '" + pass + "';");
+        				PreparedStatement stmtP = conn.prepareStatement("SELECT * from klienci where login like ? and haslo like ?;");
+//						rs = stmt.executeQuery("SELECT * from pracownicy where login like '" + user + "' and haslo like '" + pass + "';");
+        				stmtP.setString(1, user);
+						stmtP.setString(2, pass);
+						rs = stmtP.executeQuery();
+        				
+        				
+//        				rs = stmt.executeQuery("SELECT * from klienci where login like '" + user + "' and haslo like '" + pass + "';");
         				while(rs.next())
            			 	{
            			 		counter++;
@@ -179,7 +202,14 @@ public class GreetWindow extends JFrame
         				int indeks = -1;
         				try 
         				{
-							rsIndeks = stmt.executeQuery("SELECT indeks from klienci where login like '" + user + "' and haslo like '" + pass + "';");
+        					PreparedStatement stmtP = conn.prepareStatement("SELECT indeks from klienci where login like ? and haslo like ?;");
+//    						rs = stmt.executeQuery("SELECT * from pracownicy where login like '" + user + "' and haslo like '" + pass + "';");
+            				stmtP.setString(1, user);
+    						stmtP.setString(2, pass);
+    						rsIndeks = stmtP.executeQuery();
+        					
+        					
+//							rsIndeks = stmt.executeQuery("SELECT indeks from klienci where login like '" + user + "' and haslo like '" + pass + "';");
 						} catch (SQLException e1) 
         				{
 							e1.printStackTrace();

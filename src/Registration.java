@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -104,7 +105,7 @@ public class Registration extends JFrame
           mail.setToolTipText("Podaj swój adres e-mail.");
           this.getContentPane().add(panel);
           closeButton.addActionListener(new ButtonClose());
-          JButton  registrationButton = new JButton ("Register");
+          JButton  registrationButton = new JButton ("Zarejestruj");
           registrationButton.setLocation(getWidth()-310,getHeight()-90);
           registrationButton.setSize(90, 30);
           registrationButton.addActionListener(new ButtonReg());
@@ -153,7 +154,12 @@ public class Registration extends JFrame
     			int counter = 0; //inicjalizacja dla picu zeby comilator dal spokoj	        	
 				try 
 				{
-					ResultSet rs1 = stmt.executeQuery("SELECT * from klienci where login like '" + userString + "' and haslo like '" + passString + "';");
+//					ResultSet rs1 = stmt.executeQuery("SELECT * from klienci where login like '" + userString + "' and haslo like '" + passString + "';");
+					PreparedStatement stmt = conn.prepareStatement("SELECT * from klienci where login like ? and haslo like ?;");
+					stmt.setString(1, userString);
+					stmt.setString(2, passString);
+					ResultSet rs1 = stmt.executeQuery();
+					
 					while(rs1.next())
 	   			 	{
 	   			 		counter++;
@@ -190,14 +196,33 @@ public class Registration extends JFrame
 						}
 						
 						
-						String sqlInsert = "INSERT into klienci (indeks, login, haslo, imie, nazwisko, email) values (" + Integer.toString(nr) + ", '" + userString + "', '" + passString + "', '" + nameString + "', '" + surnameString + "' , '" + mailString + "');";
-						int insertInt = stmt.executeUpdate(sqlInsert);
+//						String sqlInsert = "INSERT into klienci (indeks, login, haslo, imie, nazwisko, email) values (" + Integer.toString(nr) + ", '" + userString + "', '" + passString + "', '" + nameString + "', '" + surnameString + "' , '" + mailString + "');";
+//						int insertInt = stmt.executeUpdate(sqlInsert);
+						
+						
+						PreparedStatement stmtPre = conn.prepareStatement("INSERT into klienci (indeks, login, haslo, imie, nazwisko, email) values (" + Integer.toString(nr) + ", ?, ?, ?, ? , ?);");
+    					stmtPre.setString(1, userString);
+    					stmtPre.setString(2, passString);
+    					stmtPre.setString(3, nameString);
+    					stmtPre.setString(4, surnameString);
+    					stmtPre.setString(5, mailString);
+    					stmtPre.executeUpdate();
+						
+						
+						
 						int indeks = -1;
                 		ResultSet rsIndeks = null;
         				try 
         				{
-							rsIndeks = stmt.executeQuery("SELECT indeks from klienci where login like '" + userString + "' and haslo like '" + passString + "';");
-						} catch (SQLException e1) 
+//							rsIndeks = stmt.executeQuery("SELECT indeks from klienci where login like '" + userString + "' and haslo like '" + passString + "';");
+						
+							PreparedStatement stmt = conn.prepareStatement("SELECT * from klienci where login like ? and haslo like ?;");
+							stmt.setString(1, userString);
+							stmt.setString(2, passString);
+							rsIndeks = stmt.executeQuery();
+						
+							
+        				} catch (SQLException e1) 
         				{
 							e1.printStackTrace();
 						}

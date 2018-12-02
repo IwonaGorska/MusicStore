@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -160,15 +161,37 @@ class NewPosition extends JFrame
 				}
 				
 				
-				String sqlInsert = "INSERT into plyty (indeks, tytul, wykonawca, gatunek, data_premiery, wydawnictwo, dlugosc_w_minutach) values (" + Integer.toString(nr) + ", '" +  titleField.getText() + "', '" + artistField.getText() + "', '" + genreField.getText() + "' , '" + comeOutField.getText() + "' , '" +  studioField.getText() + "' , " + number.getText() +  ");";
-				System.out.println(sqlInsert);
-				try 
-				{
-					int insertInt = stmt.executeUpdate(sqlInsert);
-				} catch (SQLException e1) 
-				{
-					e1.printStackTrace();
-				}	
+//				String sqlInsert = "INSERT into plyty (indeks, tytul, wykonawca, gatunek, data_premiery, wydawnictwo, dlugosc_w_minutach) values (" + Integer.toString(nr) + ", '" +  titleField.getText() + "', '" + artistField.getText() + "', '" + genreField.getText() + "' , '" + comeOutField.getText() + "' , '" +  studioField.getText() + "' , " + number.getText() +  ");";
+//				System.out.println(sqlInsert);
+//				try 
+//				{
+//					int insertInt = stmt.executeUpdate(sqlInsert);
+//				} catch (SQLException e1) 
+//				{
+//					e1.printStackTrace();
+//				}	
+				
+				//
+				try
+	    		{
+					PreparedStatement stmtPre = conn.prepareStatement("INSERT into plyty (indeks, tytul, wykonawca, gatunek, data_premiery, wydawnictwo, dlugosc_w_minutach) values (" + Integer.toString(nr) + ", ?, ?, ? , '" +  comeOutField.getText() +"' ,?, " + number.getText() + ");");
+					stmtPre.setString(1, titleField.getText());
+					stmtPre.setString(2, artistField.getText());
+					stmtPre.setString(3, genreField.getText());
+					stmtPre.setString(4, studioField.getText());
+					stmtPre.executeUpdate();
+	    		}
+	    		catch (SQLException e1)
+	    		{
+	    			e1.printStackTrace();
+	    		}
+				//
+				
+				
+				
+				
+				
+				
 				dispose();
 
 	        	String[] newRow = {Integer.toString(nr), titleField.getText(), artistField.getText(), genreField.getText(), comeOutField.getText(),studioField.getText(), number.getText() };

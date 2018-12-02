@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -21,6 +22,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -236,6 +238,7 @@ public class Products extends JFrame
 			{
 	        	id = (String)table.getValueAt(i, 1);
 	        	System.out.println(id);
+	        	
 	        	resTitle = stmt.executeQuery("select tytul from plyty where indeks = " + id + ";");
 		        while(resTitle.next())
 		        {
@@ -345,6 +348,8 @@ public class Products extends JFrame
         }
     }
     
+    // TU SPRAWDZANIE SQL INJECTION OGRANICZA SIE DO SPRAWDZENIA CZY NIE WPROWADZONO CZEGOKOLWIEK CO NIE JEST CYFRA W POLE ZADANA LICZBA
+    
     //WIDOCZNY TYLKO Z POZIMIOMU PRACOWNIKA W SYTUACJI GDY WPROWADZA FAKTURE, UMOZLIWIA DODANIE NA NIA ARTYKULOW
     private class ButtonToInvoice implements ActionListener
     {
@@ -382,6 +387,7 @@ public class Products extends JFrame
     		//newEmptyInvoice //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     		try 
 			{
+    			//TUTAJ NIE UZYWAM DANYCH OD UZYTKOWNIKA W STRINGU
     			stmt.executeUpdate("insert into faktury (indeks, data_sprzedazy, wartosc_netto, wartosc_brutto, wartosc_vat, rodz_dok, id_klienta_dostawcy) "
     					+ "values (" + Integer.toString(invoiceNr) + ", '2000-01-01', 0, 0, 0, 1, 1);");
 			} catch (SQLException f) 
@@ -399,11 +405,11 @@ public class Products extends JFrame
         		valueString2 = (String)valueObject2;
         		System.out.println("value2String: " + valueString2);
         		int mnoznikCen;
-        		if(valueString2.equals(""))
-        			mnoznikCen = 0;        			
-        		else
-        			mnoznikCen = Integer.parseInt(valueString2);
-        		System.out.println("MNOZNIK CEN = " + mnoznikCen);
+//        		if(valueString2.equals(""))
+//        			mnoznikCen = 0;        			
+//        		else
+//        			mnoznikCen = Integer.parseInt(valueString2);
+//        		System.out.println("MNOZNIK CEN = " + mnoznikCen);
         		valueObject3 = table.getValueAt(i, 3);
         		valueInt3 = Double.parseDouble((String)valueObject3);
         		valueObject4 = table.getValueAt(i, 4);
@@ -412,11 +418,34 @@ public class Products extends JFrame
         		valueString6 = (String)valueObject6;
         		
             	String pieces = (String)model.getValueAt(i, 6);
-        		double piecesDouble = Double.parseDouble(pieces);
+//        		double piecesDouble = Double.parseDouble(pieces);
         		
+        		boolean suspicious = false;
+        		for(int v = 0; v<valueString2.length(); v++)
+        		{
+        			if(valueString2.charAt(v) < 48 ||  valueString2.charAt(v) > 57) // CZYLI WG ASCII NIE JEST CYFRA
+        			{
+        				suspicious = true;
+        				
+                		
+        			}
+        		}
+        		
+        		if(suspicious == true)
+        		{
+        			JOptionPane.showMessageDialog(mainPanel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        			amount = 0;//zeby pusta faktura zostala usunieta
+        		}
+        		else
+        		{
         		if(!valueString2.equals("") )
         		{
-        			if(mnoznikCen > 0  && mnoznikCen <= piecesDouble)
+        			double piecesDouble = Double.parseDouble(pieces);
+        			mnoznikCen = Integer.parseInt(valueString2);
+        			System.out.println("piecesDouble= " + piecesDouble);
+        			System.out.println("mnoznikCen= " + mnoznikCen);
+        			if(mnoznikCen > 0 )
+//        				if(mnoznikCen > 0  && mnoznikCen <= piecesDouble /*&& suspicious == false*/)
         			{
     	        		ResultSet nrRes = null;
     		    		int nr = -1;
@@ -434,7 +463,8 @@ public class Products extends JFrame
     	        		
     	        		insertSql = "INSERT into produkty_faktur (indeks, indeks_faktury, indeks_egzemplarza, sztuki) values (" + Integer.toString(nr) + "," +  Integer.toString(invoiceNr) + "," + valueString1 +  ", " + valueString2 + ");";
     	        		System.out.println("-----" + insertSql);
-    	        		try 
+    		    		
+    		    		try 
     	        		{
     						stmt.executeUpdate(insertSql);
     					} catch (SQLException e1) 
@@ -464,6 +494,7 @@ public class Products extends JFrame
             			NewInvoice.canAddNew = false;
             		}
         		}
+        	}
         		
         	}
     		NewInvoice.saveButton.setVisible(true);
@@ -526,24 +557,44 @@ public class Products extends JFrame
         		valueObject2 = table.getValueAt(i, 7);
         		valueString2 = (String)valueObject2;
         		int mnoznikCen;
-        		if(valueString2.equals(""))
-        			mnoznikCen = 0;        			
-        		else
-        			mnoznikCen = Integer.parseInt(valueString2);
+//        		if(valueString2.equals(""))
+//        			mnoznikCen = 0;        			
+//        		else
+//        			mnoznikCen = Integer.parseInt(valueString2);
         		valueObject3 = table.getValueAt(i, 3);
-        		valueInt3 = Double.parseDouble((String)valueObject3);
+//        		valueInt3 = Double.parseDouble((String)valueObject3);
         		valueObject4 = table.getValueAt(i, 4);
-        		valueInt4 = Double.parseDouble((String)valueObject4);
+//        		valueInt4 = Double.parseDouble((String)valueObject4);
         		valueObject6 = table.getValueAt(i, 6);
         		valueString6 = (String)valueObject6;
         		
         		String pieces = (String)model.getValueAt(i, 6);
         		double piecesDouble = Double.parseDouble(pieces);
         		
+        		boolean suspicious = false;
+        		for(int v = 0; v<valueString2.length(); v++)
+        		{
+        			if(valueString2.charAt(v) < 48 ||  valueString2.charAt(v) > 57) // CZYLI WG ASCII NIE JEST CYFRA
+        			{
+        				suspicious = true;
+        				
+        			}
+        				
+        		}
         		
+        		if(suspicious == true)
+        		{
+        			JOptionPane.showMessageDialog(mainPanel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        			amount = 0;
+        		}
+        		else
+        		{
         		if(!valueString2.equals("") && (!(valueString6.equals("0"))) && Integer.parseInt(valueString2) <= Integer.parseInt(valueString6)  )
         		{
-        			if(mnoznikCen > 0 && mnoznikCen <= piecesDouble)
+        			valueInt4 = Double.parseDouble((String)valueObject4);
+        			valueInt3 = Double.parseDouble((String)valueObject3);
+        			mnoznikCen = Integer.parseInt(valueString2);
+        			if(mnoznikCen > 0 && mnoznikCen <= piecesDouble /*&& suspicious == false*/)
         			{
     	        		ResultSet nrRes = null;
     		    		int nr = -1;
@@ -581,6 +632,8 @@ public class Products extends JFrame
         			}
  
         		}
+        		//
+        	}
         	}
     	   
     		if(amount > 0)
@@ -643,14 +696,31 @@ public class Products extends JFrame
         		String pieces = (String)model.getValueAt(i, 6);
         		double piecesDouble = Double.parseDouble(pieces);
         		int mnoznik;
-        		if(valueString2.equals(""))
-        			mnoznik = 0;        			
-        		else
-        			mnoznik = Integer.parseInt(valueString2);
+//        		if(valueString2.equals(""))
+//        			mnoznik = 0;        			
+//        		else
+//        			mnoznik = Integer.parseInt(valueString2);
         		
+        		boolean suspicious = false;
+        		for(int v = 0; v<valueString2.length(); v++)
+        		{
+        			if(valueString2.charAt(v) < 48 ||  valueString2.charAt(v) > 57) // CZYLI WG ASCII NIE JEST CYFRA
+        			{
+        				suspicious = true;
+        			}
+        				
+        		}
+        		
+        		if(suspicious == true)
+        		{
+        			JOptionPane.showMessageDialog(mainPanel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        		}
+        		else
+        		{
         		if(!valueString2.equals("") && !pieces.equals("0") && Integer.parseInt(valueString2) <= Integer.parseInt(pieces)  )
         		{
-        			if(mnoznik > 0)
+        			mnoznik = Integer.parseInt(valueString2);
+        			if(mnoznik > 0 /*&& suspicious == false*/)
         			{
         				ResultSet nrRes = null;
     	        		int nr = 1;
@@ -679,6 +749,7 @@ public class Products extends JFrame
         			}
 	        		
         		}
+        	}
         		
         	}
         	dispose();
@@ -701,10 +772,10 @@ public class Products extends JFrame
         		valueObject2 = table.getValueAt(i, 7);
         		valueString2 = (String)valueObject2;
         		int mnoznik;
-        		if(valueString2.equals(""))
-        			mnoznik = 0;        			
-        		else
-        			mnoznik = Integer.parseInt(valueString2);
+//        		if(valueString2.equals(""))
+//        			mnoznik = 0;        			
+//        		else
+//        			mnoznik = Integer.parseInt(valueString2);
         		
         		ResultSet nrRes = null;
         		int nr = -1;
@@ -720,9 +791,23 @@ public class Products extends JFrame
     				f.printStackTrace();
     			}
         		
-        		if(!valueString2.equals(""))
+        		boolean suspicious = false;
+        		for(int v = 0; v<valueString2.length(); v++)
         		{
-        			if(mnoznik > 0)
+        			if(valueString2.charAt(v) < 48 ||  valueString2.charAt(v) > 57) // CZYLI WG ASCII NIE JEST CYFRA
+        			{
+        				suspicious = true;
+        				
+        			}
+        		}
+        		
+        		if(suspicious == true)
+        			JOptionPane.showMessageDialog(mainPanel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        		
+        		if(!valueString2.equals("")&& suspicious == false)
+        		{
+        			mnoznik = Integer.parseInt(valueString2);
+        			if(mnoznik > 0) 
         			{
         				insertSql = "INSERT into zamowienia (indeks, indeks_egzemplarza, data_zlozenia, sztuki) values (" + Integer.toString(nr) + ", " + valueString1 + ", " +  "current_date, " + valueString2 + ");";
                 		System.out.println(insertSql);
@@ -761,7 +846,26 @@ public class Products extends JFrame
         		cenaString2 = (String)cenaObject2;
         		double cenaDouble= Double.parseDouble(cenaString);
         		double cenaDouble2= Double.parseDouble(cenaString2);
-        		if(cenaDouble > 0 && cenaDouble2 > 0)
+        		
+        		boolean suspicious1 = false;
+        		for(int v = 0; v<cenaString.length(); v++)
+        		{
+        			if((cenaString.charAt(v) < 48 ||  cenaString.charAt(v) > 57) && cenaString.charAt(v) != '.') // CZYLI WG ASCII NIE JEST CYFRA ani kropka
+        				suspicious1 = true;
+        		}
+        		
+        		boolean suspicious2 = false;
+        		for(int v = 0; v<cenaString2.length(); v++)
+        		{
+        			if((cenaString2.charAt(v) < 48 ||  cenaString2.charAt(v) > 57) && cenaString2.charAt(v) != '.') // CZYLI WG ASCII NIE JEST CYFRA ani kropka
+        				suspicious2 = true;
+        		}
+        		
+        		if(suspicious1 == true || suspicious2 == true)
+        			JOptionPane.showMessageDialog(mainPanel, "Niedozwolone znaki!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
+        		
+        		
+        		if(cenaDouble > 0 && cenaDouble2 > 0 && suspicious1 == false && suspicious2 == false)
         		{
         			updateSql = "update egzemplarze set cena = " + cenaString + " where indeks = "+ Integer.toString(i+1) + ";";
             		updateSql2 = "update egzemplarze set koszt_dostawy = " + cenaString2 + " where indeks = "+ Integer.toString(i+1) + ";";

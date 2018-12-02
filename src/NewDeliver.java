@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -42,9 +43,9 @@ private JTextField nr_telField;
 		  }
 		  
           JButton  closeButton = new JButton ("Zamknij");
-          JLabel  name = new JLabel("nazwa: "); 
-          JLabel  nip = new JLabel("nip: ");
-          JLabel  nr_tel= new JLabel("nr_telefonu: ");
+          JLabel  name = new JLabel("Nazwa: "); 
+          JLabel  nip = new JLabel("NIP: ");
+          JLabel  nr_tel= new JLabel("Nr_Telefonu: ");
           
           nameField = new JTextField(6);
           nipField = new JTextField(6);
@@ -141,14 +142,29 @@ private JTextField nr_telField;
 					f.printStackTrace();
 				}
 							
-				String sqlInsert = "INSERT into dostawcy (indeks, nazwa, nip, nr_telefonu) values (" + Integer.toString(nr) + ", '" + nameField.getText() + "', '" + nipField.getText() + "', '" + nr_telField.getText() + "');";
-				try 
-				{
-					int insertInt = stmt.executeUpdate(sqlInsert);
-				} catch (SQLException e1) 
-				{
-					e1.printStackTrace();
-				}				
+//				String sqlInsert = "INSERT into dostawcy (indeks, nazwa, nip, nr_telefonu) values (" + Integer.toString(nr) + ", '" + nameField.getText() + "', '" + nipField.getText() + "', '" + nr_telField.getText() + "');";
+//				try 
+//				{
+//					int insertInt = stmt.executeUpdate(sqlInsert);
+//				} catch (SQLException e1) 
+//				{
+//					e1.printStackTrace();
+//				}	
+				
+				//
+	    		try
+	    		{
+					PreparedStatement stmtPre = conn.prepareStatement("INSERT into dostawcy (indeks, nazwa, nip, nr_telefonu) values (" + Integer.toString(nr) + ", ?,?,?);");
+					stmtPre.setString(1, nameField.getText());
+					stmtPre.setString(2, nipField.getText());
+					stmtPre.setString(3, nr_telField.getText());
+					stmtPre.executeUpdate();
+	    		}
+	    		catch (SQLException e1)
+	    		{
+	    			e1.printStackTrace();
+	    		}
+				//
 
 	        	String[] newRow = {Integer.toString(nr), nameField.getText(), nipField.getText(), nr_telField.getText()};
 	        	Delivers.model.addRow(newRow);

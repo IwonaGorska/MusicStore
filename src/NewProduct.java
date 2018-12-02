@@ -135,13 +135,34 @@ public class NewProduct extends JFrame
     { 
         public void actionPerformed(ActionEvent e)
         {
-            if(amountField.getText().isEmpty() == true || Double.parseDouble(amountField.getText() ) <=0)        
+        	boolean suspicious1 = false;
+    		for(int v = 0; v<amountField.getText().length(); v++)
+    		{
+    			if(((amountField.getText()).charAt(v) < 48 ||  (amountField.getText()).charAt(v) > 57) && (amountField.getText()).charAt(v) != '.') // CZYLI WG ASCII NIE JEST CYFRA
+    			{
+    				suspicious1 = true;
+    				
+    			}	
+    		}
+    		
+    		boolean suspicious2 = false;
+    		for(int v = 0; v<deliveryField.getText().length(); v++)
+    		{
+    			if(((deliveryField.getText()).charAt(v) < 48 ||  (deliveryField.getText()).charAt(v) > 57) && (deliveryField.getText()).charAt(v) != '.') // CZYLI WG ASCII NIE JEST CYFRA
+    			{
+    				suspicious2 = true;
+    				
+    			}	
+    		}
+        	
+        	
+            if(suspicious1 == true || suspicious2 == true)        
             {
     			JOptionPane.showMessageDialog(panel, "B³êdne dane!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
     		}    
     		else
     		{
-    			if(deliveryField.getText().isEmpty() == true || Double.parseDouble(deliveryField.getText() ) <=0)          
+    			if(amountField.getText().isEmpty() == true || Double.parseDouble(amountField.getText() ) <=0 || deliveryField.getText().isEmpty() == true || Double.parseDouble(deliveryField.getText() ) <=0)          
         		{
         			JOptionPane.showMessageDialog(panel, "B³êdne dane!", "B³¹d!", JOptionPane.ERROR_MESSAGE);
         		}

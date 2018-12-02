@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -225,15 +226,35 @@ public class MyAccount extends JFrame
             	}
             	else
         		{
-    				String sqlUpdate = "UPDATE klienci SET login='" + userString + "', haslo='" + passString + "', imie='" + nameString + "', nazwisko='" + surnameString + "', email='" + mailString + "' WHERE indeks=" + Integer.toString(indeks) + ";";
-    				try 
-    				{
-    					stmt.executeUpdate(sqlUpdate);
-    					System.out.println(sqlUpdate);
-    				} catch (SQLException e1) 
-    				{
-    					e1.printStackTrace();
-    				}
+//    				String sqlUpdate = "UPDATE klienci SET login='" + userString + "', haslo='" + passString + "', imie='" + nameString + "', nazwisko='" + surnameString + "', email='" + mailString + "' WHERE indeks=" + Integer.toString(indeks) + ";";
+//    				try 
+//    				{
+//    					stmt.executeUpdate(sqlUpdate);
+//    					System.out.println(sqlUpdate);
+//    				} catch (SQLException e1) 
+//    				{
+//    					e1.printStackTrace();
+//    				}
+    				
+    				
+    				try
+    	    		{
+    					PreparedStatement stmtPre = conn.prepareStatement("UPDATE klienci SET login=?, haslo=?, imie=?, nazwisko=?, email=? WHERE indeks=" + Integer.toString(indeks) + ";");
+    					stmtPre.setString(1, userString);
+    					stmtPre.setString(2, passString);
+    					stmtPre.setString(3, nameString);
+    					stmtPre.setString(4, surnameString);
+    					stmtPre.setString(5, mailString);
+    					stmtPre.executeUpdate();
+    	    		}
+    	    		catch (SQLException e1)
+    	    		{
+    	    			e1.printStackTrace();
+    	    		}
+    				
+    				
+    				
+    				
     				dispose();
         		} 
             }
