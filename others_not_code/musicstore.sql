@@ -4,7 +4,7 @@ create table Plyty (indeks serial Primary Key, tytul varchar (20) not null, wyko
 data_premiery date, wydawnictwo varchar(30), dlugosc Integer);
 
 create table Egzemplarze (indeks serial Primary Key, indeks_plyty Integer references Plyty (indeks), nosnik smallint default 1 not null, 
-cena numeric not null, koszt_dostawy numeric not null, liczba_ocen integer not null, srednia_ocena integer not null, rodzaj smallint default 1 not null,
+cena numeric not null, koszt_dostawy numeric not null, rodzaj smallint default 1 not null,
 stan Integer not null);
 
 -- create table Wykonawcy (indeks Integer Primary Key, nazwa varchar (30) not null, gatunek varchar(30) not null); -- czy wgl potrzebna ta tabela?
@@ -14,17 +14,17 @@ create table Dostawcy (indeks serial Primary Key, nazwa varchar (30) not null, n
 create table Klienci (indeks serial Primary Key, login varchar (15) not null, haslo varchar(9) not null, imie varchar (20) not null, 
 nazwisko varchar(30) not null, email varchar(30));
 
-create table Koszyk (indeks serial Primary Key, indeks_plyty Integer references Plyty (indeks), indeks_klienta Integer references Klienci (indeks));
+create table Koszyk (indeks serial Primary Key, indeks_plyty Integer references Plyty (indeks), indeks_klienta Integer references Klienci (indeks), sztuki Integer);
 
 create table Zamowienia (indeks serial Primary Key, indeks_egzemplarza Integer references Egzemplarze (indeks), 
-data_zlozenia date, data_realizacji date);
+data_zlozenia date, data_realizacji date, sztuki Integer);
 
 create table Faktury (indeks serial Primary Key, data_sprzedazy date, wartosc_netto numeric, wartosc_brutto numeric, wartosc_vat numeric,
-rodz_dok smallint);
+rodz_dok smallint, id_klienta_dostawcy);
 
 create table Pracownicy (indeks serial Primary Key, login varchar (15) not null, haslo varchar(9) not null);
 
-create table Produkty_Faktur(indeks serial Primary Key, indeks_faktury Integer references faktury (indeks), indeks_egzemplarza Integer references egzemplarze (indeks), sztuk integer not null);
+create table Produkty_Faktur(indeks serial Primary Key, indeks_faktury Integer references faktury (indeks), indeks_egzemplarza Integer references egzemplarze (indeks), sztuki integer not null);
 
 
 ----//////////////////////////////////////
